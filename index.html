@@ -21,6 +21,9 @@
     margin-right: 10px;
     padding: 8px 15px;
     cursor: pointer;
+    background: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
   nav button.active {
     background-color: #007bff;
@@ -33,6 +36,7 @@
     border-radius: 6px;
     max-width: 600px;
     box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
   }
   label {
     display: block;
@@ -76,6 +80,7 @@
     padding: 10px 12px;
     margin-bottom: 10px;
     border-radius: 5px;
+    position: relative;
   }
   .entry strong {
     display: inline-block;
@@ -85,9 +90,15 @@
     margin-left: 5px;
     padding: 4px 8px;
     font-size: 12px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
   }
   #filterSection {
     margin-bottom: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.05);
   }
   #global-announcement {
     border: 1px solid #ccc;
@@ -120,6 +131,158 @@
     margin-top: 8px;
     font-weight: bold;
   }
+  .preview-container {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .preview-image {
+    max-width: 100px;
+    max-height: 100px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: none;
+  }
+  .upload-btn {
+    background: #e9ecef;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .file-name {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+  }
+  .delete-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 2px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .section-title {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #007bff;
+  }
+  /* Tablet (min-width: 600px) */
+@media (min-width: 600px) {
+  body {
+    margin: 40px auto;
+    max-width: 800px;
+    background: #f5f8fa;
+  }
+  header {
+    font-size: 32px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  nav button {
+    padding: 12px 25px;
+    font-size: 16px;
+  }
+  form {
+    max-width: 700px;
+    margin: 0 auto 30px;
+    padding: 25px;
+  }
+  #playersList, #teamsList, #adminPlayersList, #adminTeamsList, #adminBansList {
+    max-width: 700px;
+    margin: 0 auto 30px;
+  }
+  .entry {
+    padding: 15px 20px;
+  }
+  label {
+    font-size: 16px;
+  }
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px;
+    padding: 10px;
+  }
+  button.submit-btn {
+    font-size: 18px;
+    padding: 12px 22px;
+  }
+  .preview-image {
+    max-width: 120px;
+    max-height: 120px;
+  }
+}
+
+/* Desktop (min-width: 992px) */
+@media (min-width: 992px) {
+  body {
+    margin: 50px auto;
+    max-width: 1000px;
+    background: #f5f8fa;
+  }
+  header {
+    font-size: 36px;
+  }
+  nav {
+    max-width: 800px;
+  }
+  nav button {
+    font-size: 18px;
+    padding: 14px 30px;
+  }
+  form {
+    max-width: 900px;
+    padding: 30px 40px;
+  }
+  #playersList, #teamsList, #adminPlayersList, #adminTeamsList, #adminBansList {
+    max-width: 900px;
+  }
+  .entry {
+    padding: 18px 25px;
+  }
+  label {
+    font-size: 18px;
+  }
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 18px;
+    padding: 12px;
+  }
+  button.submit-btn {
+    font-size: 20px;
+    padding: 14px 28px;
+  }
+  .preview-image {
+    max-width: 140px;
+    max-height: 140px;
+  }
+  #filterSection {
+    max-width: 900px;
+    margin: 0 auto 30px;
+  }
+  #global-announcement {
+    max-width: 900px;
+    margin: 0 auto 30px;
+  }
+  #adminSection {
+    max-width: 900px;
+    margin: 30px auto 0;
+  }
+}
 </style>
 </head>
 <body>
@@ -168,6 +331,7 @@
 
 <!-- Players Section -->
 <section id="sectionPlayers">
+  <div class="section-title">Player Submission</div>
   <form id="playerForm">
     <label for="playerDiscord">Discord Username (e.g. oliverishandsome):</label>
     <input type="text" id="playerDiscord" required pattern="^[a-zA-Z0-9_.]{3,32}$" title="3-32 characters: letters, numbers, underscore, or dot"/>
@@ -203,18 +367,26 @@
     <label for="playerExtra">Extra Details (optional):</label>
     <textarea id="playerExtra"></textarea>
 
-    <label for="playerPicture">Picture URL (optional):</label>
-    <input type="text" id="playerPicture" placeholder="https://example.com/image.jpg"/>
+    <label for="playerPicture">Player Picture (optional):</label>
+    <input type="file" id="playerPicture" accept="image/*" style="display: none;" />
+    <button type="button" class="upload-btn" id="playerPictureBtn">Choose Image</button>
+    <div class="file-name" id="playerPictureName">No file selected</div>
+    <div class="preview-container">
+      <img id="playerPicturePreview" class="preview-image" />
+      <button type="button" class="delete-btn" id="playerPictureDelete" style="display: none;">Remove</button>
+    </div>
 
     <button type="submit" class="submit-btn">Submit Player</button>
     <div id="playerError" style="color:red; margin-top:5px;"></div>
   </form>
 
+  <div class="section-title">Players List</div>
   <div id="playersList"></div>
 </section>
 
 <!-- Teams Section -->
 <section id="sectionTeams" style="display:none;">
+  <div class="section-title">Team Submission</div>
   <form id="teamForm">
     <label for="teamName">Team Name:</label>
     <input type="text" id="teamName" required />
@@ -242,13 +414,20 @@
     <label for="teamExtra">Extra Details (optional):</label>
     <textarea id="teamExtra"></textarea>
 
-    <label for="teamIcon">Team Icon URL (optional):</label>
-    <input type="text" id="teamIcon" placeholder="https://example.com/icon.jpg"/>
+    <label for="teamIcon">Team Icon (optional):</label>
+    <input type="file" id="teamIcon" accept="image/*" style="display: none;" />
+    <button type="button" class="upload-btn" id="teamIconBtn">Choose Image</button>
+    <div class="file-name" id="teamIconName">No file selected</div>
+    <div class="preview-container">
+      <img id="teamIconPreview" class="preview-image" />
+      <button type="button" class="delete-btn" id="teamIconDelete" style="display: none;">Remove</button>
+    </div>
 
     <button type="submit" class="submit-btn">Submit Team</button>
     <div id="teamError" style="color:red; margin-top:5px;"></div>
   </form>
 
+  <div class="section-title">Teams List</div>
   <div id="teamsList"></div>
 </section>
 
@@ -308,6 +487,19 @@
 
   const globalAnnouncement = document.getElementById('global-announcement');
 
+  // File upload elements
+  const playerPictureInput = document.getElementById('playerPicture');
+  const playerPictureBtn = document.getElementById('playerPictureBtn');
+  const playerPicturePreview = document.getElementById('playerPicturePreview');
+  const playerPictureName = document.getElementById('playerPictureName');
+  const playerPictureDelete = document.getElementById('playerPictureDelete');
+  
+  const teamIconInput = document.getElementById('teamIcon');
+  const teamIconBtn = document.getElementById('teamIconBtn');
+  const teamIconPreview = document.getElementById('teamIconPreview');
+  const teamIconName = document.getElementById('teamIconName');
+  const teamIconDelete = document.getElementById('teamIconDelete');
+
   // State variables
   let players = [];
   let teams = [];
@@ -316,6 +508,10 @@
   let lastSubmitTimestamp = 0;
   let playerClickCount = 0;
   let playerClickTimeout;
+  
+  // Current image data
+  let currentPlayerImage = null;
+  let currentTeamImage = null;
 
   // Utility: Escape HTML
   function escapeHTML(str) {
@@ -556,6 +752,54 @@
     });
   }
 
+  // Handle image preview
+  function handleImagePreview(input, preview, nameDisplay, deleteBtn) {
+    return function(e) {
+      const file = input.files[0];
+      if (!file) return;
+      
+      // Check if file is an image
+      if (!file.type.match('image.*')) {
+        alert('Please select an image file (jpg, png, gif)');
+        input.value = '';
+        return;
+      }
+      
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Image file is too large. Maximum size is 2MB.');
+        input.value = '';
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        nameDisplay.textContent = file.name;
+        deleteBtn.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    };
+  }
+
+  // Reset image fields
+  function resetImageFields() {
+    playerPictureInput.value = '';
+    playerPicturePreview.src = '';
+    playerPicturePreview.style.display = 'none';
+    playerPictureName.textContent = 'No file selected';
+    playerPictureDelete.style.display = 'none';
+    currentPlayerImage = null;
+    
+    teamIconInput.value = '';
+    teamIconPreview.src = '';
+    teamIconPreview.style.display = 'none';
+    teamIconName.textContent = 'No file selected';
+    teamIconDelete.style.display = 'none';
+    currentTeamImage = null;
+  }
+
   // Add Player
   playerForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -571,63 +815,79 @@
     const region = playerForm.playerRegion.value;
     const experience = playerForm.playerExperience.value.trim();
     const extra = playerForm.playerExtra.value.trim();
-    const picture = playerForm.playerPicture.value.trim();
     const positions = Array.from(playerForm.playerPositions.selectedOptions).map(o => o.value);
+    
+    // Get image data if uploaded
+    let picture = null;
+    if (playerPictureInput.files.length > 0) {
+      const file = playerPictureInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        picture = e.target.result;
+        completePlayerSubmission(picture);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      completePlayerSubmission(picture);
+    }
+    
+    function completePlayerSubmission(picture) {
+      if (!validDiscord(discord)) {
+        playerError.textContent = 'Invalid Discord username format.';
+        return;
+      }
+      if (!validRatingMembers(rating)) {
+        playerError.textContent = 'Rating must be a number, decimal, or with K suffix (e.g. 2.3K or 100).';
+        return;
+      }
+      if (!region) {
+        playerError.textContent = 'Please select a region.';
+        return;
+      }
+      if (!experience) {
+        playerError.textContent = 'Experience cannot be empty.';
+        return;
+      }
+      if (!validPositions(positions)) {
+        playerError.textContent = 'Please select at least one valid position.';
+        return;
+      }
 
-    if (!validDiscord(discord)) {
-      playerError.textContent = 'Invalid Discord username format.';
-      return;
-    }
-    if (!validRatingMembers(rating)) {
-      playerError.textContent = 'Rating must be a number, decimal, or with K suffix (e.g. 2.3K or 100).';
-      return;
-    }
-    if (!region) {
-      playerError.textContent = 'Please select a region.';
-      return;
-    }
-    if (!experience) {
-      playerError.textContent = 'Experience cannot be empty.';
-      return;
-    }
-    if (!validPositions(positions)) {
-      playerError.textContent = 'Please select at least one valid position.';
-      return;
-    }
+      // Check ban
+      if (isBanned(discord)) {
+        playerError.textContent = 'You are banned from submitting entries.';
+        return;
+      }
 
-    // Check ban
-    if (isBanned(discord)) {
-      playerError.textContent = 'You are banned from submitting entries.';
-      return;
-    }
+      // Check bad words in input fields
+      if (!validateNoBadWords({discord, rating, region, experience, extra})) {
+        playerError.textContent = 'Inappropriate language detected. You have been banned for 1 day.';
+        banUser(discord, 86400); // ban 1 day
+        saveData();
+        return;
+      }
 
-    // Check bad words in input fields
-    if (!validateNoBadWords({discord, rating, region, experience, extra, picture})) {
-      playerError.textContent = 'Inappropriate language detected. You have been banned for 1 day.';
-      banUser(discord, 86400); // ban 1 day
+      // Create new player entry with unique ID
+      const newPlayer = {
+        id: generateId(),
+        discord,
+        rating,
+        region,
+        experience,
+        extra,
+        picture,
+        positions,
+        createdAt: Date.now()
+      };
+
+      players.push(newPlayer);
       saveData();
-      return;
+      renderPlayersList();
+      playerForm.reset();
+      resetImageFields();
+      lastSubmitTimestamp = Date.now();
+      alert('Player submitted successfully!');
     }
-
-    // Create new player entry with unique ID
-    const newPlayer = {
-      id: generateId(),
-      discord,
-      rating,
-      region,
-      experience,
-      extra,
-      picture,
-      positions,
-      createdAt: Date.now()
-    };
-
-    players.push(newPlayer);
-    saveData();
-    renderPlayersList();
-    playerForm.reset();
-    lastSubmitTimestamp = Date.now();
-    alert('Player submitted successfully!');
   });
 
   // Add Team
@@ -647,62 +907,78 @@
     const managerDiscord = teamForm.teamManagerDiscord.value.trim();
     const teamLink = teamForm.teamLink.value.trim();
     const extra = teamForm.teamExtra.value.trim();
-    const teamIcon = teamForm.teamIcon.value.trim();
+    
+    // Get image data if uploaded
+    let teamIcon = null;
+    if (teamIconInput.files.length > 0) {
+      const file = teamIconInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        teamIcon = e.target.result;
+        completeTeamSubmission(teamIcon);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      completeTeamSubmission(teamIcon);
+    }
+    
+    function completeTeamSubmission(teamIcon) {
+      if (!teamName) {
+        teamError.textContent = 'Team Name cannot be empty.';
+        return;
+      }
+      if (!validRatingMembers(members)) {
+        teamError.textContent = 'Members must be a number, decimal, or with K suffix (e.g. 2.3K or 10).';
+        return;
+      }
+      if (!region) {
+        teamError.textContent = 'Please select a region.';
+        return;
+      }
+      if (!leagues) {
+        teamError.textContent = 'Leagues cannot be empty.';
+        return;
+      }
+      if (!validDiscord(managerDiscord)) {
+        teamError.textContent = 'Invalid Manager Discord username format.';
+        return;
+      }
 
-    if (!teamName) {
-      teamError.textContent = 'Team Name cannot be empty.';
-      return;
-    }
-    if (!validRatingMembers(members)) {
-      teamError.textContent = 'Members must be a number, decimal, or with K suffix (e.g. 2.3K or 10).';
-      return;
-    }
-    if (!region) {
-      teamError.textContent = 'Please select a region.';
-      return;
-    }
-    if (!leagues) {
-      teamError.textContent = 'Leagues cannot be empty.';
-      return;
-    }
-    if (!validDiscord(managerDiscord)) {
-      teamError.textContent = 'Invalid Manager Discord username format.';
-      return;
-    }
+      // Check ban
+      if (isBanned(managerDiscord)) {
+        teamError.textContent = 'You are banned from submitting entries.';
+        return;
+      }
 
-    // Check ban
-    if (isBanned(managerDiscord)) {
-      teamError.textContent = 'You are banned from submitting entries.';
-      return;
-    }
+      // Check bad words
+      if (!validateNoBadWords({teamName, members, region, leagues, managerDiscord, teamLink, extra})) {
+        teamError.textContent = 'Inappropriate language detected. You have been banned for 1 day.';
+        banUser(managerDiscord, 86400);
+        saveData();
+        return;
+      }
 
-    // Check bad words
-    if (!validateNoBadWords({teamName, members, region, leagues, managerDiscord, teamLink, extra, teamIcon})) {
-      teamError.textContent = 'Inappropriate language detected. You have been banned for 1 day.';
-      banUser(managerDiscord, 86400);
+      const newTeam = {
+        id: generateId(),
+        teamName,
+        members,
+        region,
+        leagues,
+        managerDiscord,
+        teamLink,
+        extra,
+        teamIcon,
+        createdAt: Date.now()
+      };
+
+      teams.push(newTeam);
       saveData();
-      return;
+      renderTeamsList();
+      teamForm.reset();
+      resetImageFields();
+      lastSubmitTimestamp = Date.now();
+      alert('Team submitted successfully!');
     }
-
-    const newTeam = {
-      id: generateId(),
-      teamName,
-      members,
-      region,
-      leagues,
-      managerDiscord,
-      teamLink,
-      extra,
-      teamIcon,
-      createdAt: Date.now()
-    };
-
-    teams.push(newTeam);
-    saveData();
-    renderTeamsList();
-    teamForm.reset();
-    lastSubmitTimestamp = Date.now();
-    alert('Team submitted successfully!');
   });
 
   // Navigation buttons
@@ -810,6 +1086,42 @@
       saveData();
       renderAdmin();
     }
+  });
+
+  // Set up file upload buttons
+  playerPictureBtn.addEventListener('click', () => playerPictureInput.click());
+  teamIconBtn.addEventListener('click', () => teamIconInput.click());
+  
+  // Set up image previews
+  playerPictureInput.addEventListener('change', handleImagePreview(
+    playerPictureInput, 
+    playerPicturePreview, 
+    playerPictureName, 
+    playerPictureDelete
+  ));
+  
+  teamIconInput.addEventListener('change', handleImagePreview(
+    teamIconInput, 
+    teamIconPreview, 
+    teamIconName, 
+    teamIconDelete
+  ));
+  
+  // Set up image deletion
+  playerPictureDelete.addEventListener('click', () => {
+    playerPictureInput.value = '';
+    playerPicturePreview.src = '';
+    playerPicturePreview.style.display = 'none';
+    playerPictureName.textContent = 'No file selected';
+    playerPictureDelete.style.display = 'none';
+  });
+  
+  teamIconDelete.addEventListener('click', () => {
+    teamIconInput.value = '';
+    teamIconPreview.src = '';
+    teamIconPreview.style.display = 'none';
+    teamIconName.textContent = 'No file selected';
+    teamIconDelete.style.display = 'none';
   });
 
   // Initial load
