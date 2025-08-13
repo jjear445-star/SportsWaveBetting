@@ -28,16 +28,16 @@ button:disabled {background: gray; cursor: not-allowed;}
 
 <div id="adminPanel" class="admin-panel" style="display:none;">
     <h3>Admin Dashboard</h3>
-    <button onclick="logoutAdmin()">Logout</button>
+    <button id="logoutAdminBtn">Logout</button>
     
     <h4>Give Yourself Points</h4>
     <input type="number" id="givePointsAmount" placeholder="Points">
-    <button onclick="givePoints()">Give Points</button>
+    <button id="givePointsBtn">Give Points</button>
 
     <h4>Create Game</h4>
     <input type="text" id="team1" placeholder="Team 1">
     <input type="text" id="team2" placeholder="Team 2">
-    <button onclick="createGame()">Create Game</button>
+    <button id="createGameBtn">Create Game</button>
 
     <h4>Update Score</h4>
     <div id="scoreUpdate"></div>
@@ -56,7 +56,6 @@ button:disabled {background: gray; cursor: not-allowed;}
 </div>
 
 <script>
-// DATA
 let balance = parseInt(localStorage.getItem("balance")) || 10000;
 let games = JSON.parse(localStorage.getItem("games")) || [
     { id: 1, team1: "Crystal Palace", team2: "Derby County", score1: 0, score2: 0, bettingOpen: true, progress: "Open" }
@@ -65,7 +64,6 @@ let bets = JSON.parse(localStorage.getItem("bets")) || [];
 let betLog = JSON.parse(localStorage.getItem("betLog")) || [];
 let isAdmin = localStorage.getItem("isAdmin") === "true";
 
-// SECRET TITLE CLICK
 let titleClickCount = 0;
 document.getElementById("siteTitle").addEventListener("click", () => {
     titleClickCount++;
@@ -83,7 +81,6 @@ document.getElementById("siteTitle").addEventListener("click", () => {
     }
 });
 
-// SAVE DATA
 function saveData(){
     localStorage.setItem("balance", balance);
     localStorage.setItem("games", JSON.stringify(games));
@@ -91,7 +88,6 @@ function saveData(){
     localStorage.setItem("betLog", JSON.stringify(betLog));
 }
 
-// CHECK BALANCE
 function checkBalanceReset(){
     if(balance <= 0){
         balance = 100;
@@ -103,7 +99,6 @@ function checkBalanceReset(){
 
 function updateBalance(){ document.getElementById("balance").innerText = balance; }
 
-// RENDER GAMES
 function renderGames(){
     checkBalanceReset();
     let container = document.getElementById("games");
@@ -118,28 +113,34 @@ function renderGames(){
             <br>Score: ${game.score1} - ${game.score2}
             <br>Status: ${status}, Progress: ${game.progress}
             <br>
-            <input type="number" id="betAmount${game.id}" placeholder="Points" ${hasBet || !game.bettingOpen || game.progress!=="Open"?"disabled":""}>
-            <select id="betTeam${game.id}" ${hasBet || !game.bettingOpen || game.progress!=="Open"?"disabled":""}>
+            <input type="number" id="betAmount_${game.id}" placeholder="Points" ${hasBet || !game.bettingOpen || game.progress!=="Open"?"disabled":""}>
+            <select id="betTeam_${game.id}" ${hasBet || !game.bettingOpen || game.progress!=="Open"?"disabled":""}>
                 <option value="${game.team1}">${game.team1}</option>
                 <option value="${game.team2}">${game.team2}</option>
             </select>
-            <button onclick="placeBet(${game.id})" ${hasBet || !game.bettingOpen || game.progress!=="Open"?"disabled":""}>Bet</button>
+            <button class="betBtn" data-game="${game.id}" ${hasBet || !game.bettingOpen || game.progress!=="Open"?"disabled":""}>Bet</button>
         `;
         container.appendChild(div);
     });
 }
 
-// RENDER BET LOG
 function renderBetLog(){
     let logContainer = document.getElementById("betLog");
     logContainer.innerHTML = betLog.slice(-10).map(entry=>`<p>${entry}</p>`).join("");
 }
 
-// PLACE BET
+document.addEventListener("click", function(e){
+    if(e.target && e.target.className==="betBtn"){
+        let gameId = parseInt(e.target.dataset.game);
+        placeBet(gameId);
+    }
+});
+
+// BET
 function placeBet(gameId){
     let game = games.find(g=>g.id===gameId);
-    let amount = parseInt(document.getElementById(`betAmount${game.id}`).value);
-    let team = document.getElementById(`betTeam${game.id}`).value;
+    let amount = parseInt(document.getElementById(`betAmount_${game.id}`).value);
+    let team = document.getElementById(`betTeam_${game.id}`).value;
 
     if(!amount || amount<=0) return alert("Enter a valid bet amount");
     if(amount>balance) return alert("You do not have enough points");
@@ -158,7 +159,7 @@ function placeBet(gameId){
     checkBalanceReset();
 }
 
-// SHOW ADMIN PANEL
+// ADMIN PANEL
 function showAdmin(){
     document.getElementById("adminPanel").style.display="block";
     renderScoreUpdate();
@@ -168,21 +169,21 @@ function showAdmin(){
     renderDeleteControls();
 }
 
-// LOGOUT ADMIN
-function logoutAdmin(){
+// LOGOUT
+document.getElementById("logoutAdminBtn").addEventListener("click", ()=>{
     isAdmin=false;
     localStorage.removeItem("isAdmin");
     document.getElementById("adminPanel").style.display="none";
-}
+});
 
 // GIVE POINTS
-function givePoints(){
+document.getElementById("givePointsBtn").addEventListener("click", ()=>{
     let amount=parseInt(document.getElementById("givePointsAmount").value);
     if(amount>0){balance+=amount; saveData(); updateBalance();}
-}
+});
 
 // CREATE GAME
-function createGame(){
+document.getElementById("createGameBtn").addEventListener("click", ()=>{
     let t1 = document.getElementById("team1").value.trim();
     let t2 = document.getElementById("team2").value.trim();
     if(!t1 || !t2) return alert("Enter team names");
@@ -197,27 +198,29 @@ function createGame(){
     renderStartGameControls();
     renderEndBetControls();
     renderDeleteControls();
-}
+});
 
 // UPDATE SCORE
 function renderScoreUpdate(){
     let container=document.getElementById("scoreUpdate"); container.innerHTML="";
     games.forEach(game=>{
         container.innerHTML+=`
-            <div>
-                ${game.team1} <input type="number" id="score1_${game.id}" value="${game.score1}">
-                ${game.team2} <input type="number" id="score2_${game.id}" value="${game.score2}">
-                <button onclick="updateScore(${game.id})">Update</button>
-            </div>`;
+        <div>
+        ${game.team1} <input type="number" class="score1Input" data-game="${game.id}" value="${game.score1}">
+        ${game.team2} <input type="number" class="score2Input" data-game="${game.id}" value="${game.score2}">
+        <button class="updateScoreBtn" data-game="${game.id}">Update</button>
+        </div>`;
     });
 }
-function updateScore(gameId){
-    let game=games.find(g=>g.id===gameId);
-    game.score1=parseInt(document.getElementById(`score1_${gameId}`).value);
-    game.score2=parseInt(document.getElementById(`score2_${gameId}`).value);
-    saveData();
-    renderGames();
-}
+document.addEventListener("click", function(e){
+    if(e.target && e.target.className==="updateScoreBtn"){
+        let id = parseInt(e.target.dataset.game);
+        let game = games.find(g=>g.id===id);
+        game.score1 = parseInt(document.querySelector(`.score1Input[data-game="${id}"]`).value);
+        game.score2 = parseInt(document.querySelector(`.score2Input[data-game="${id}"]`).value);
+        saveData(); renderGames();
+    }
+});
 
 // UPDATE PROGRESS
 function renderProgressUpdate(){
@@ -225,45 +228,45 @@ function renderProgressUpdate(){
     games.forEach(game=>{
         container.innerHTML+=`
         <div>
-            ${game.team1} vs ${game.team2}
-            <select id="progress_${game.id}">
-                <option value="Open" ${game.progress==="Open"?'selected':''}>Open</option>
-                <option value="1st Half" ${game.progress==="1st Half"?'selected':''}>1st Half</option>
-                <option value="Half Time" ${game.progress==="Half Time"?'selected':''}>Half Time</option>
-                <option value="2nd Half" ${game.progress==="2nd Half"?'selected':''}>2nd Half</option>
-                <option value="Extra Time" ${game.progress==="Extra Time"?'selected':''}>Extra Time</option>
-                <option value="Pens" ${game.progress==="Pens"?'selected':''}>Pens</option>
-                <option value="Closed" ${game.progress==="Closed"?'selected':''}>Closed</option>
-            </select>
-            <button onclick="updateProgress(${game.id})">Update Progress</button>
+        ${game.team1} vs ${game.team2}
+        <select class="progressSelect" data-game="${game.id}">
+            <option value="Open" ${game.progress==="Open"?'selected':''}>Open</option>
+            <option value="1st Half" ${game.progress==="1st Half"?'selected':''}>1st Half</option>
+            <option value="Half Time" ${game.progress==="Half Time"?'selected':''}>Half Time</option>
+            <option value="2nd Half" ${game.progress==="2nd Half"?'selected':''}>2nd Half</option>
+            <option value="Extra Time" ${game.progress==="Extra Time"?'selected':''}>Extra Time</option>
+            <option value="Pens" ${game.progress==="Pens"?'selected':''}>Pens</option>
+            <option value="Closed" ${game.progress==="Closed"?'selected':''}>Closed</option>
+        </select>
+        <button class="updateProgressBtn" data-game="${game.id}">Update Progress</button>
         </div>`;
     });
 }
-function updateProgress(gameId){
-    let game=games.find(g=>g.id===gameId);
-    game.progress=document.getElementById(`progress_${game.id}`).value;
-    if(game.progress!=="Open") game.bettingOpen=false;
-    saveData();
-    renderGames(); renderProgressUpdate();
-}
+document.addEventListener("click", function(e){
+    if(e.target && e.target.className==="updateProgressBtn"){
+        let id=parseInt(e.target.dataset.game);
+        let game = games.find(g=>g.id===id);
+        game.progress=document.querySelector(`.progressSelect[data-game="${id}"]`).value;
+        if(game.progress!=="Open") game.bettingOpen=false;
+        saveData(); renderGames(); renderProgressUpdate();
+    }
+});
 
-// START GAME (Stops betting)
+// START GAME
 function renderStartGameControls(){
     let container=document.getElementById("startGameControls"); container.innerHTML="";
     games.forEach(game=>{
         if(game.bettingOpen){
-            container.innerHTML+=`<button onclick="startGame(${game.id})">Start Game: ${game.team1} vs ${game.team2}</button><br>`;
+            let btn = document.createElement("button");
+            btn.textContent = `Start Game: ${game.team1} vs ${game.team2}`;
+            btn.addEventListener("click", ()=>{
+                game.bettingOpen=false;
+                if(game.progress==="Open") game.progress="1st Half";
+                saveData(); renderGames(); renderStartGameControls(); renderEndBetControls();
+            });
+            container.appendChild(btn); container.appendChild(document.createElement("br"));
         }
     });
-}
-function startGame(gameId){
-    let game = games.find(g=>g.id===gameId);
-    game.bettingOpen=false;
-    if(game.progress==="Open") game.progress="1st Half";
-    saveData();
-    renderGames();
-    renderStartGameControls();
-    renderEndBetControls();
 }
 
 // END BETTING
@@ -271,44 +274,48 @@ function renderEndBetControls(){
     let container=document.getElementById("endBetControls"); container.innerHTML="";
     games.forEach(game=>{
         if(!game.bettingOpen){
-            container.innerHTML+=`<button onclick="endBet(${game.id})">End Betting: ${game.team1} vs ${game.team2}</button><br>`;
+            let btn=document.createElement("button");
+            btn.textContent=`End Betting: ${game.team1} vs ${game.team2}`;
+            btn.addEventListener("click", ()=>{
+                bets.forEach(bet=>{
+                    if(bet.gameId===game.id){
+                        if(game.score1>game.score2 && bet.team===game.team1) balance+=bet.amount*2;
+                        else if(game.score2>game.score1 && bet.team===game.team2) balance+=bet.amount*2;
+                        else if(game.score1===game.score2) balance+=bet.amount;
+                    }
+                });
+                bets = bets.filter(b=>b.gameId!==game.id);
+                saveData(); renderGames(); renderBetLog(); updateBalance(); renderEndBetControls();
+                alert(`Betting ended for ${game.team1} vs ${game.team2}`);
+            });
+            container.appendChild(btn); container.appendChild(document.createElement("br"));
         }
     });
-}
-function endBet(gameId){
-    let game = games.find(g=>g.id===gameId);
-    bets.forEach(bet=>{
-        if(bet.gameId===gameId){
-            if(game.score1>game.score2 && bet.team===game.team1) balance+=bet.amount*2;
-            else if(game.score2>game.score1 && bet.team===game.team2) balance+=bet.amount*2;
-            else if(game.score1===game.score2) balance+=bet.amount;
-        }
-    });
-    bets = bets.filter(b=>b.gameId!==gameId);
-    saveData();
-    renderGames(); renderBetLog(); updateBalance(); renderEndBetControls();
-    alert(`Betting ended for ${game.team1} vs ${game.team2}`);
 }
 
 // DELETE GAME
 function renderDeleteControls(){
     let container=document.getElementById("deleteGameControls"); container.innerHTML="";
     games.forEach(game=>{
-        container.innerHTML+=`<button onclick="deleteGame(${game.id})">Delete: ${game.team1} vs ${game.team2}</button><br>`;
+        let btn=document.createElement("button");
+        btn.textContent=`Delete: ${game.team1} vs ${game.team2}`;
+        btn.addEventListener("click", ()=>{
+            if(!confirm("Are you sure?")) return;
+            games = games.filter(g=>g.id!==game.id);
+            bets = bets.filter(b=>b.gameId!==game.id);
+            saveData();
+            renderGames(); renderScoreUpdate(); renderProgressUpdate(); renderStartGameControls(); renderEndBetControls(); renderDeleteControls();
+        });
+        container.appendChild(btn); container.appendChild(document.createElement("br"));
     });
-}
-function deleteGame(gameId){
-    if(!confirm("Are you sure?")) return;
-    games = games.filter(g=>g.id!==gameId);
-    bets = bets.filter(b=>b.gameId!==gameId);
-    saveData();
-    renderGames(); renderScoreUpdate(); renderProgressUpdate(); renderStartGameControls(); renderEndBetControls(); renderDeleteControls();
 }
 
 // INIT
-updateBalance(); renderGames(); renderBetLog();
+updateBalance();
+renderGames();
+renderBetLog();
 if(isAdmin) showAdmin();
-</script>
 
+</script>
 </body>
 </html>
