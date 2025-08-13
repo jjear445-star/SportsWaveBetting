@@ -255,7 +255,7 @@ function renderStartGameControls(){
     });
 }
 
-// END BETTING
+// END BETTING (DOUBLE WIN / REFUND TIE)
 function renderEndBetControls(){
     let container=document.getElementById("endBetControls"); container.innerHTML="";
     games.forEach(game=>{
@@ -263,16 +263,17 @@ function renderEndBetControls(){
             let btn=document.createElement("button");
             btn.textContent=`End Betting: ${game.team1} vs ${game.team2}`;
             btn.addEventListener("click", ()=>{
+                let winners = [];
                 bets.forEach(bet=>{
                     if(bet.gameId===game.id){
-                        if(game.score1>game.score2 && bet.team===game.team1) balance+=bet.amount*2;
-                        else if(game.score2>game.score1 && bet.team===game.team2) balance+=bet.amount*2;
-                        else if(game.score1===game.score2) balance+=bet.amount;
+                        if(game.score1>game.score2 && bet.team===game.team1) { balance += bet.amount*2; winners.push(bet.team); }
+                        else if(game.score2>game.score1 && bet.team===game.team2) { balance += bet.amount*2; winners.push(bet.team); }
+                        else if(game.score1===game.score2) { balance += bet.amount; }
                     }
                 });
                 bets = bets.filter(b=>b.gameId!==game.id);
                 saveData(); renderGames(); renderBetLog(); updateBalance(); renderAdminControls();
-                alert(`Betting ended for ${game.team1} vs ${game.team2}`);
+                alert(`Betting ended for ${game.team1} vs ${game.team2}. Winning team: ${winners.join(", ") || "Tie"}`);
             });
             container.appendChild(btn); container.appendChild(document.createElement("br"));
         }
