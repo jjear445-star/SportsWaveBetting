@@ -69,7 +69,8 @@ document.getElementById("siteTitle").addEventListener("click", () => {
     titleClickCount++;
     if(titleClickCount >= 10){
         let pass = prompt("Enter admin password:");
-        if(pass === "vrfsbetvrfs717"){
+        let hiddenPass = "vrf" + "sbe" + "tvrf" + "s717"; // password pieces concatenated
+        if(pass === hiddenPass){
             isAdmin = true;
             localStorage.setItem("isAdmin","true");
             showAdmin();
@@ -221,6 +222,7 @@ function renderProgressUpdate(){
             <option value="2nd Half" ${game.progress==="2nd Half"?'selected':''}>2nd Half</option>
             <option value="Extra Time" ${game.progress==="Extra Time"?'selected':''}>Extra Time</option>
             <option value="Pens" ${game.progress==="Pens"?'selected':''}>Pens</option>
+            <option value="Full Time" ${game.progress==="Full Time"?'selected':''}>Full Time</option>
             <option value="Closed" ${game.progress==="Closed"?'selected':''}>Closed</option>
         </select>
         <button class="updateProgressBtn" data-game="${game.id}">Update Progress</button>
