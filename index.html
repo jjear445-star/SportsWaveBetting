@@ -56,6 +56,7 @@ button:disabled {background: gray; cursor: not-allowed;}
 </div>
 
 <script>
+// DATA
 let balance = parseInt(localStorage.getItem("balance")) || 10000;
 let games = JSON.parse(localStorage.getItem("games")) || [
     { id: 1, team1: "Crystal Palace", team2: "Derby County", score1: 0, score2: 0, bettingOpen: true, progress: "Open" }
@@ -64,7 +65,8 @@ let bets = JSON.parse(localStorage.getItem("bets")) || [];
 let betLog = JSON.parse(localStorage.getItem("betLog")) || [];
 let isAdmin = localStorage.getItem("isAdmin") === "true";
 
-let titleClickCount = 0; // title click counter
+// SECRET TITLE CLICK
+let titleClickCount = 0;
 document.getElementById("siteTitle").addEventListener("click", () => {
     titleClickCount++;
     if(titleClickCount >= 10){
@@ -81,6 +83,7 @@ document.getElementById("siteTitle").addEventListener("click", () => {
     }
 });
 
+// SAVE DATA
 function saveData(){
     localStorage.setItem("balance", balance);
     localStorage.setItem("games", JSON.stringify(games));
@@ -88,6 +91,7 @@ function saveData(){
     localStorage.setItem("betLog", JSON.stringify(betLog));
 }
 
+// CHECK BALANCE
 function checkBalanceReset(){
     if(balance <= 0){
         balance = 100;
@@ -99,6 +103,7 @@ function checkBalanceReset(){
 
 function updateBalance(){ document.getElementById("balance").innerText = balance; }
 
+// RENDER GAMES
 function renderGames(){
     checkBalanceReset();
     let container = document.getElementById("games");
@@ -124,11 +129,13 @@ function renderGames(){
     });
 }
 
+// RENDER BET LOG
 function renderBetLog(){
     let logContainer = document.getElementById("betLog");
     logContainer.innerHTML = betLog.slice(-10).map(entry=>`<p>${entry}</p>`).join("");
 }
 
+// PLACE BET
 function placeBet(gameId){
     let game = games.find(g=>g.id===gameId);
     let amount = parseInt(document.getElementById(`betAmount${game.id}`).value);
@@ -151,6 +158,7 @@ function placeBet(gameId){
     checkBalanceReset();
 }
 
+// SHOW ADMIN PANEL
 function showAdmin(){
     document.getElementById("adminPanel").style.display="block";
     renderScoreUpdate();
@@ -160,12 +168,38 @@ function showAdmin(){
     renderDeleteControls();
 }
 
+// LOGOUT ADMIN
 function logoutAdmin(){
     isAdmin=false;
     localStorage.removeItem("isAdmin");
     document.getElementById("adminPanel").style.display="none";
 }
 
+// GIVE POINTS
+function givePoints(){
+    let amount=parseInt(document.getElementById("givePointsAmount").value);
+    if(amount>0){balance+=amount; saveData(); updateBalance();}
+}
+
+// CREATE GAME
+function createGame(){
+    let t1 = document.getElementById("team1").value.trim();
+    let t2 = document.getElementById("team2").value.trim();
+    if(!t1 || !t2) return alert("Enter team names");
+    let id = Date.now();
+    games.push({id, team1:t1, team2:t2, score1:0, score2:0, bettingOpen:true, progress:"Open"});
+    document.getElementById("team1").value="";
+    document.getElementById("team2").value="";
+    saveData();
+    renderGames();
+    renderScoreUpdate();
+    renderProgressUpdate();
+    renderStartGameControls();
+    renderEndBetControls();
+    renderDeleteControls();
+}
+
+// UPDATE SCORE
 function renderScoreUpdate(){
     let container=document.getElementById("scoreUpdate"); container.innerHTML="";
     games.forEach(game=>{
@@ -185,6 +219,7 @@ function updateScore(gameId){
     renderGames();
 }
 
+// UPDATE PROGRESS
 function renderProgressUpdate(){
     let container=document.getElementById("progressUpdate"); container.innerHTML="";
     games.forEach(game=>{
@@ -207,19 +242,71 @@ function renderProgressUpdate(){
 function updateProgress(gameId){
     let game=games.find(g=>g.id===gameId);
     game.progress=document.getElementById(`progress_${game.id}`).value;
-    if(game.progress==="Closed") game.bettingOpen=false;
+    if(game.progress!=="Open") game.bettingOpen=false;
     saveData();
     renderGames(); renderProgressUpdate();
 }
 
-function givePoints(){
-    let amount=parseInt(document.getElementById("givePointsAmount").value);
-    if(amount>0){balance+=amount; saveData(); updateBalance();}
+// START GAME (Stops betting)
+function renderStartGameControls(){
+    let container=document.getElementById("startGameControls"); container.innerHTML="";
+    games.forEach(game=>{
+        if(game.bettingOpen){
+            container.innerHTML+=`<button onclick="startGame(${game.id})">Start Game: ${game.team1} vs ${game.team2}</button><br>`;
+        }
+    });
+}
+function startGame(gameId){
+    let game = games.find(g=>g.id===gameId);
+    game.bettingOpen=false;
+    if(game.progress==="Open") game.progress="1st Half";
+    saveData();
+    renderGames();
+    renderStartGameControls();
+    renderEndBetControls();
 }
 
-updateBalance();
-renderGames();
-renderBetLog();
+// END BETTING
+function renderEndBetControls(){
+    let container=document.getElementById("endBetControls"); container.innerHTML="";
+    games.forEach(game=>{
+        if(!game.bettingOpen){
+            container.innerHTML+=`<button onclick="endBet(${game.id})">End Betting: ${game.team1} vs ${game.team2}</button><br>`;
+        }
+    });
+}
+function endBet(gameId){
+    let game = games.find(g=>g.id===gameId);
+    bets.forEach(bet=>{
+        if(bet.gameId===gameId){
+            if(game.score1>game.score2 && bet.team===game.team1) balance+=bet.amount*2;
+            else if(game.score2>game.score1 && bet.team===game.team2) balance+=bet.amount*2;
+            else if(game.score1===game.score2) balance+=bet.amount;
+        }
+    });
+    bets = bets.filter(b=>b.gameId!==gameId);
+    saveData();
+    renderGames(); renderBetLog(); updateBalance(); renderEndBetControls();
+    alert(`Betting ended for ${game.team1} vs ${game.team2}`);
+}
+
+// DELETE GAME
+function renderDeleteControls(){
+    let container=document.getElementById("deleteGameControls"); container.innerHTML="";
+    games.forEach(game=>{
+        container.innerHTML+=`<button onclick="deleteGame(${game.id})">Delete: ${game.team1} vs ${game.team2}</button><br>`;
+    });
+}
+function deleteGame(gameId){
+    if(!confirm("Are you sure?")) return;
+    games = games.filter(g=>g.id!==gameId);
+    bets = bets.filter(b=>b.gameId!==gameId);
+    saveData();
+    renderGames(); renderScoreUpdate(); renderProgressUpdate(); renderStartGameControls(); renderEndBetControls(); renderDeleteControls();
+}
+
+// INIT
+updateBalance(); renderGames(); renderBetLog();
 if(isAdmin) showAdmin();
 </script>
 
