@@ -6,7 +6,7 @@
 <title>VRFS SportsWave Bets</title>
 <style>
 body {background-color: #0f172a; color: white; font-family: Arial, sans-serif; padding: 20px;}
-h1 {text-align: center; cursor: pointer;}
+h1 {text-align: center; cursor: pointer; user-select: none;}
 .game {background: #111827; padding: 15px; margin: 10px 0; border-radius: 10px;}
 button {padding: 6px 12px; border: none; border-radius: 6px; background: #2563eb; color: white; cursor: pointer;}
 button:disabled {background: gray; cursor: not-allowed;}
@@ -56,7 +56,6 @@ button:disabled {background: gray; cursor: not-allowed;}
 </div>
 
 <script>
-// --- DATA ---
 let balance = parseInt(localStorage.getItem("balance")) || 10000;
 let games = JSON.parse(localStorage.getItem("games")) || [
     { id: 1, team1: "Crystal Palace", team2: "Derby County", score1: 0, score2: 0, bettingOpen: true, progress: "Open" }
@@ -65,11 +64,10 @@ let bets = JSON.parse(localStorage.getItem("bets")) || [];
 let betLog = JSON.parse(localStorage.getItem("betLog")) || [];
 let isAdmin = localStorage.getItem("isAdmin") === "true";
 
-// --- SECRET TITLE CLICK ---
-let titleClickCount = 0;
-document.getElementById("siteTitle").addEventListener("click", ()=>{
+let titleClickCount = 0; // title click counter
+document.getElementById("siteTitle").addEventListener("click", () => {
     titleClickCount++;
-    if(titleClickCount>=10){
+    if(titleClickCount >= 10){
         let pass = prompt("Enter admin password:");
         if(pass === "vrfsbetvrfs717"){
             isAdmin = true;
@@ -83,7 +81,6 @@ document.getElementById("siteTitle").addEventListener("click", ()=>{
     }
 });
 
-// --- SAVE / BALANCE / CHECK ---
 function saveData(){
     localStorage.setItem("balance", balance);
     localStorage.setItem("games", JSON.stringify(games));
@@ -102,7 +99,6 @@ function checkBalanceReset(){
 
 function updateBalance(){ document.getElementById("balance").innerText = balance; }
 
-// --- RENDER ---
 function renderGames(){
     checkBalanceReset();
     let container = document.getElementById("games");
@@ -133,7 +129,6 @@ function renderBetLog(){
     logContainer.innerHTML = betLog.slice(-10).map(entry=>`<p>${entry}</p>`).join("");
 }
 
-// --- BET ---
 function placeBet(gameId){
     let game = games.find(g=>g.id===gameId);
     let amount = parseInt(document.getElementById(`betAmount${game.id}`).value);
@@ -156,7 +151,6 @@ function placeBet(gameId){
     checkBalanceReset();
 }
 
-// --- ADMIN PANEL ---
 function showAdmin(){
     document.getElementById("adminPanel").style.display="block";
     renderScoreUpdate();
@@ -172,7 +166,6 @@ function logoutAdmin(){
     document.getElementById("adminPanel").style.display="none";
 }
 
-// --- ADMIN FUNCTIONS ---
 function renderScoreUpdate(){
     let container=document.getElementById("scoreUpdate"); container.innerHTML="";
     games.forEach(game=>{
@@ -219,7 +212,11 @@ function updateProgress(gameId){
     renderGames(); renderProgressUpdate();
 }
 
-// --- INITIALIZE ---
+function givePoints(){
+    let amount=parseInt(document.getElementById("givePointsAmount").value);
+    if(amount>0){balance+=amount; saveData(); updateBalance();}
+}
+
 updateBalance();
 renderGames();
 renderBetLog();
