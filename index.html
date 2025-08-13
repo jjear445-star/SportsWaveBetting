@@ -1,1138 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>BetterScout</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VRFS Mini Bets</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background: #f5f8fa;
-  }
-  header {
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-  nav {
-    margin-bottom: 20px;
-  }
-  nav button {
-    margin-right: 10px;
-    padding: 8px 15px;
-    cursor: pointer;
-    background: #e0e0e0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  nav button.active {
-    background-color: #007bff;
-    color: white;
-    border: none;
-  }
-  form {
-    background: white;
-    padding: 15px;
-    border-radius: 6px;
-    max-width: 600px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-  }
-  label {
-    display: block;
-    margin-top: 12px;
-    font-weight: bold;
-  }
-  input[type="text"],
-  input[type="number"],
-  select,
-  textarea {
-    width: 100%;
-    padding: 6px;
-    margin-top: 4px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  textarea {
-    resize: vertical;
-  }
-  button.submit-btn {
-    margin-top: 15px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  button.submit-btn:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-  }
-  #playersList, #teamsList, #adminPlayersList, #adminTeamsList, #adminBansList {
-    margin-top: 20px;
-    max-width: 650px;
-  }
-  .entry {
-    background: white;
-    border: 1px solid #ddd;
-    padding: 10px 12px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    position: relative;
-  }
-  .entry strong {
-    display: inline-block;
-    width: 110px;
-  }
-  .entry .actions button {
-    margin-left: 5px;
-    padding: 4px 8px;
-    font-size: 12px;
-    background: #f8f9fa;
-    border: 1px solid #ddd;
-  }
-  #filterSection {
-    margin-bottom: 20px;
-    background: white;
-    padding: 15px;
-    border-radius: 6px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.05);
-  }
-  #global-announcement {
-    border: 1px solid #ccc;
-    background: #e9ecef;
-    padding: 12px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-    font-style: italic;
-    max-width: 650px;
-  }
-  #adminSection {
-    display: none;
-    max-width: 650px;
-    margin-top: 30px;
-    background: white;
-    padding: 15px;
-    border-radius: 6px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  }
-  #adminSection h3 {
-    margin-top: 0;
-  }
-  #adminSection textarea {
-    width: 100%;
-    height: 70px;
-    margin-bottom: 10px;
-  }
-  #errorMsg {
-    color: red;
-    margin-top: 8px;
-    font-weight: bold;
-  }
-  .preview-container {
-    margin-top: 10px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  .preview-image {
-    max-width: 100px;
-    max-height: 100px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    display: none;
-  }
-  .upload-btn {
-    background: #e9ecef;
-    border: 1px solid #ccc;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  .file-name {
-    font-size: 14px;
-    color: #666;
-    margin-top: 5px;
-  }
-  .delete-btn {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 2px 6px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 12px;
-  }
-  .section-title {
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #333;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #007bff;
-  }
-  /* Tablet (min-width: 600px) */
-@media (min-width: 600px) {
-  body {
-    margin: 40px auto;
-    max-width: 800px;
-    background: #f5f8fa;
-  }
-  header {
-    font-size: 32px;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  nav {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
-  }
-  nav button {
-    padding: 12px 25px;
-    font-size: 16px;
-  }
-  form {
-    max-width: 700px;
-    margin: 0 auto 30px;
-    padding: 25px;
-  }
-  #playersList, #teamsList, #adminPlayersList, #adminTeamsList, #adminBansList {
-    max-width: 700px;
-    margin: 0 auto 30px;
-  }
-  .entry {
-    padding: 15px 20px;
-  }
-  label {
-    font-size: 16px;
-  }
-  input[type="text"],
-  input[type="number"],
-  select,
-  textarea {
-    font-size: 16px;
-    padding: 10px;
-  }
-  button.submit-btn {
-    font-size: 18px;
-    padding: 12px 22px;
-  }
-  .preview-image {
-    max-width: 120px;
-    max-height: 120px;
-  }
-}
-
-/* Desktop (min-width: 992px) */
-@media (min-width: 992px) {
-  body {
-    margin: 50px auto;
-    max-width: 1000px;
-    background: #f5f8fa;
-  }
-  header {
-    font-size: 36px;
-  }
-  nav {
-    max-width: 800px;
-  }
-  nav button {
-    font-size: 18px;
-    padding: 14px 30px;
-  }
-  form {
-    max-width: 900px;
-    padding: 30px 40px;
-  }
-  #playersList, #teamsList, #adminPlayersList, #adminTeamsList, #adminBansList {
-    max-width: 900px;
-  }
-  .entry {
-    padding: 18px 25px;
-  }
-  label {
-    font-size: 18px;
-  }
-  input[type="text"],
-  input[type="number"],
-  select,
-  textarea {
-    font-size: 18px;
-    padding: 12px;
-  }
-  button.submit-btn {
-    font-size: 20px;
-    padding: 14px 28px;
-  }
-  .preview-image {
-    max-width: 140px;
-    max-height: 140px;
-  }
-  #filterSection {
-    max-width: 900px;
-    margin: 0 auto 30px;
-  }
-  #global-announcement {
-    max-width: 900px;
-    margin: 0 auto 30px;
-  }
-  #adminSection {
-    max-width: 900px;
-    margin: 30px auto 0;
-  }
-}
+body {background-color: #0f172a; color: white; font-family: Arial, sans-serif; padding: 20px;}
+h1 {text-align: center;}
+.game {background: #111827; padding: 15px; margin: 10px 0; border-radius: 10px;}
+button {padding: 6px 12px; border: none; border-radius: 6px; background: #2563eb; color: white; cursor: pointer;}
+button:disabled {background: gray; cursor: not-allowed;}
+.admin-panel {background: #1f2937; padding: 15px; margin-top: 20px; border-radius: 10px;}
+.log {background: #1e293b; padding: 10px; border-radius: 10px; margin-top: 20px;}
 </style>
 </head>
 <body>
 
-<header>BetterScout - Scout VRFS Players and Teams</header>
+<h1>VRFS Sportswave Bets</h1>
+<p>Balance: <span id="balance"></span> points</p>
 
-<div id="global-announcement">No announcements yet.</div>
+<div id="games"></div>
 
-<nav>
-  <button id="navPlayers" class="active">Players</button>
-  <button id="navTeams">Teams</button>
-</nav>
-
-<div id="filterSection">
-  <label for="filterRegionPlayers">Filter Players by Region:</label>
-  <select id="filterRegionPlayers">
-    <option value="all">All Regions</option>
-    <option value="EU">EU</option>
-    <option value="NA">NA</option>
-    <option value="AU">AU</option>
-  </select>
-
-  <label for="filterPositions">Filter Players by Position:</label>
-  <select id="filterPositions">
-    <option value="all">All Positions</option>
-    <option value="GK">GK</option>
-    <option value="LB">LB</option>
-    <option value="CB">CB</option>
-    <option value="RB">RB</option>
-    <option value="CDM">CDM</option>
-    <option value="CM">CM</option>
-    <option value="CAM">CAM</option>
-    <option value="LW">LW</option>
-    <option value="ST">ST</option>
-    <option value="RW">RW</option>
-  </select>
-
-  <label for="filterRegionTeams">Filter Teams by Region:</label>
-  <select id="filterRegionTeams">
-    <option value="all">All Regions</option>
-    <option value="EU">EU</option>
-    <option value="NA">NA</option>
-    <option value="AU">AU</option>
-  </select>
+<div class="log">
+    <h3>Last 10 Bets</h3>
+    <div id="betLog"></div>
 </div>
 
-<!-- Players Section -->
-<section id="sectionPlayers">
-  <div class="section-title">Player Submission</div>
-  <form id="playerForm">
-    <label for="playerDiscord">Discord Username (e.g. oliverishandsome):</label>
-    <input type="text" id="playerDiscord" required pattern="^[a-zA-Z0-9_.]{3,32}$" title="3-32 characters: letters, numbers, underscore, or dot"/>
+<div id="adminPanel" class="admin-panel" style="display:none;">
+    <h3>Admin Dashboard</h3>
+    <button onclick="logoutAdmin()">Logout</button>
+    
+    <h4>Give Yourself Points</h4>
+    <input type="number" id="givePointsAmount" placeholder="Points">
+    <button onclick="givePoints()">Give Points</button>
 
-    <label for="playerRating">Rating (e.g. 2.3K, 100):</label>
-    <input type="text" id="playerRating" required pattern="^\d+(\.\d+)?K?$" title="Number like 100, 2.3K or 2.3"/>
+    <h4>Create Game</h4>
+    <input type="text" id="team1" placeholder="Team 1">
+    <input type="text" id="team2" placeholder="Team 2">
+    <button onclick="createGame()">Create Game</button>
 
-    <label for="playerRegion">Region:</label>
-    <select id="playerRegion" required>
-      <option value="">Select Region</option>
-      <option value="EU">EU</option>
-      <option value="NA">NA</option>
-      <option value="AU">AU</option>
-    </select>
+    <h4>Update Score</h4>
+    <div id="scoreUpdate"></div>
 
-    <label for="playerPositions">Positions (hold Ctrl/Cmd to select multiple):</label>
-    <select id="playerPositions" multiple size="5" required>
-      <option value="GK">GK</option>
-      <option value="LB">LB</option>
-      <option value="CB">CB</option>
-      <option value="RB">RB</option>
-      <option value="CDM">CDM</option>
-      <option value="CM">CM</option>
-      <option value="CAM">CAM</option>
-      <option value="LW">LW</option>
-      <option value="ST">ST</option>
-      <option value="RW">RW</option>
-    </select>
+    <h4>Update Game Progress</h4>
+    <div id="progressUpdate"></div>
 
-    <label for="playerExperience">Experience:</label>
-    <input type="text" id="playerExperience" required />
+    <h4>Start Game / Stop Betting</h4>
+    <div id="startGameControls"></div>
 
-    <label for="playerExtra">Extra Details (optional):</label>
-    <textarea id="playerExtra"></textarea>
+    <h4>End Betting (Double Points / Refund Tie)</h4>
+    <div id="endBetControls"></div>
 
-    <label for="playerPicture">Player Picture (optional):</label>
-    <input type="file" id="playerPicture" accept="image/*" style="display: none;" />
-    <button type="button" class="upload-btn" id="playerPictureBtn">Choose Image</button>
-    <div class="file-name" id="playerPictureName">No file selected</div>
-    <div class="preview-container">
-      <img id="playerPicturePreview" class="preview-image" />
-      <button type="button" class="delete-btn" id="playerPictureDelete" style="display: none;">Remove</button>
-    </div>
-
-    <button type="submit" class="submit-btn">Submit Player</button>
-    <div id="playerError" style="color:red; margin-top:5px;"></div>
-  </form>
-
-  <div class="section-title">Players List</div>
-  <div id="playersList"></div>
-</section>
-
-<!-- Teams Section -->
-<section id="sectionTeams" style="display:none;">
-  <div class="section-title">Team Submission</div>
-  <form id="teamForm">
-    <label for="teamName">Team Name:</label>
-    <input type="text" id="teamName" required />
-
-    <label for="teamMembers">Members (e.g. 10, 2.3K):</label>
-    <input type="text" id="teamMembers" required pattern="^\d+(\.\d+)?K?$" title="Number like 10, 2.3K or 2.3" />
-
-    <label for="teamRegion">Region:</label>
-    <select id="teamRegion" required>
-      <option value="">Select Region</option>
-      <option value="EU">EU</option>
-      <option value="NA">NA</option>
-      <option value="AU">AU</option>
-    </select>
-
-    <label for="teamLeagues">Leagues:</label>
-    <input type="text" id="teamLeagues" required />
-
-    <label for="teamManagerDiscord">Manager Discord (e.g. oliverishandsome):</label>
-    <input type="text" id="teamManagerDiscord" required pattern="^[a-zA-Z0-9_.]{3,32}$" title="3-32 characters: letters, numbers, underscore, or dot"/>
-
-    <label for="teamLink">Team Link (optional):</label>
-    <input type="text" id="teamLink" placeholder="https://example.com/team"/>
-
-    <label for="teamExtra">Extra Details (optional):</label>
-    <textarea id="teamExtra"></textarea>
-
-    <label for="teamIcon">Team Icon (optional):</label>
-    <input type="file" id="teamIcon" accept="image/*" style="display: none;" />
-    <button type="button" class="upload-btn" id="teamIconBtn">Choose Image</button>
-    <div class="file-name" id="teamIconName">No file selected</div>
-    <div class="preview-container">
-      <img id="teamIconPreview" class="preview-image" />
-      <button type="button" class="delete-btn" id="teamIconDelete" style="display: none;">Remove</button>
-    </div>
-
-    <button type="submit" class="submit-btn">Submit Team</button>
-    <div id="teamError" style="color:red; margin-top:5px;"></div>
-  </form>
-
-  <div class="section-title">Teams List</div>
-  <div id="teamsList"></div>
-</section>
-
-<!-- Admin Section -->
-<section id="adminSection">
-  <h3>Admin Dashboard</h3>
-  <button id="adminLogoutBtn" style="margin-bottom:10px;">Logout Admin</button>
-
-  <h4>Players</h4>
-  <div id="adminPlayersList"></div>
-
-  <h4>Teams</h4>
-  <div id="adminTeamsList"></div>
-
-  <h4>Bans</h4>
-  <div id="adminBansList"></div>
-
-  <h4>Global Announcement</h4>
-  <textarea id="adminAnnouncementInput" placeholder="Write announcement here..."></textarea><br/>
-  <button id="adminPostAnnouncementBtn">Post Announcement</button>
-</section>
+    <h4>Delete Game</h4>
+    <div id="deleteGameControls"></div>
+</div>
 
 <script>
-(() => {
-  // Constants
-  const ADMIN_PASSWORD = 'baszins88aszcv';
-  const STORAGE_PLAYERS = 'betterScout_players';
-  const STORAGE_TEAMS = 'betterScout_teams';
-  const STORAGE_BANS = 'betterScout_bans';
-  const STORAGE_ANNOUNCEMENT = 'betterScout_announcement';
-  const COOLDOWN_SECONDS = 90;
+let balance = parseInt(localStorage.getItem("balance")) || 10000;
+let games = JSON.parse(localStorage.getItem("games")) || [
+    { id: 1, team1: "Crystal Palace", team2: "Derby County", score1: 0, score2: 0, bettingOpen: true, progress: "Open" }
+];
+let bets = JSON.parse(localStorage.getItem("bets")) || [];
+let betLog = JSON.parse(localStorage.getItem("betLog")) || [];
+let adminClickCount = 0;
+let isAdmin = localStorage.getItem("isAdmin") === "true";
 
-  // DOM elements
-  const navPlayers = document.getElementById('navPlayers');
-  const navTeams = document.getElementById('navTeams');
-  const sectionPlayers = document.getElementById('sectionPlayers');
-  const sectionTeams = document.getElementById('sectionTeams');
-  const playersList = document.getElementById('playersList');
-  const teamsList = document.getElementById('teamsList');
-  const filterRegionPlayers = document.getElementById('filterRegionPlayers');
-  const filterPositions = document.getElementById('filterPositions');
-  const filterRegionTeams = document.getElementById('filterRegionTeams');
+function saveData() {
+    localStorage.setItem("balance", balance);
+    localStorage.setItem("games", JSON.stringify(games));
+    localStorage.setItem("bets", JSON.stringify(bets));
+    localStorage.setItem("betLog", JSON.stringify(betLog));
+}
 
-  const playerForm = document.getElementById('playerForm');
-  const teamForm = document.getElementById('teamForm');
-  const playerError = document.getElementById('playerError');
-  const teamError = document.getElementById('teamError');
-
-  // Admin
-  const adminSection = document.getElementById('adminSection');
-  const adminPlayersList = document.getElementById('adminPlayersList');
-  const adminTeamsList = document.getElementById('adminTeamsList');
-  const adminBansList = document.getElementById('adminBansList');
-  const adminLogoutBtn = document.getElementById('adminLogoutBtn');
-  const adminAnnouncementInput = document.getElementById('adminAnnouncementInput');
-  const adminPostAnnouncementBtn = document.getElementById('adminPostAnnouncementBtn');
-
-  const globalAnnouncement = document.getElementById('global-announcement');
-
-  // File upload elements
-  const playerPictureInput = document.getElementById('playerPicture');
-  const playerPictureBtn = document.getElementById('playerPictureBtn');
-  const playerPicturePreview = document.getElementById('playerPicturePreview');
-  const playerPictureName = document.getElementById('playerPictureName');
-  const playerPictureDelete = document.getElementById('playerPictureDelete');
-  
-  const teamIconInput = document.getElementById('teamIcon');
-  const teamIconBtn = document.getElementById('teamIconBtn');
-  const teamIconPreview = document.getElementById('teamIconPreview');
-  const teamIconName = document.getElementById('teamIconName');
-  const teamIconDelete = document.getElementById('teamIconDelete');
-
-  // State variables
-  let players = [];
-  let teams = [];
-  let bans = {};
-  let adminLoggedIn = false;
-  let lastSubmitTimestamp = 0;
-  let playerClickCount = 0;
-  let playerClickTimeout;
-  
-  // Current image data
-  let currentPlayerImage = null;
-  let currentTeamImage = null;
-
-  // Utility: Escape HTML
-  function escapeHTML(str) {
-    return str.replace(/[&<>"']/g, s => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    })[s]);
-  }
-
-  // Utility: Generate unique ID
-  function generateId() {
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
-  }
-
-  // Load and Save data
-  function loadData() {
-    try {
-      players = JSON.parse(localStorage.getItem(STORAGE_PLAYERS)) || [];
-      teams = JSON.parse(localStorage.getItem(STORAGE_TEAMS)) || [];
-      bans = JSON.parse(localStorage.getItem(STORAGE_BANS)) || {};
-    } catch {
-      players = [];
-      teams = [];
-      bans = {};
+function checkBalanceReset() {
+    if (balance <= 0) {
+        balance = 100;
+        saveData();
+        updateBalance();
+        alert("Your points reached 0. Reset to 100 points!");
     }
-  }
+}
 
-  function saveData() {
-    localStorage.setItem(STORAGE_PLAYERS, JSON.stringify(players));
-    localStorage.setItem(STORAGE_TEAMS, JSON.stringify(teams));
-    localStorage.setItem(STORAGE_BANS, JSON.stringify(bans));
-  }
-
-  // Bad words & slurs detection
-  const badWords = [
-    "nigger", "nigga", "faggot", "fag", "nga", "nger",
-    // expanded list can be added here
-  ];
-
-  function containsBadWord(text) {
-    const lower = text.toLowerCase();
-    return badWords.some(word => lower.includes(word));
-  }
-
-  // Ban user (discord username), durationSeconds: 0=forever
-  function banUser(discord, durationSeconds) {
-    const now = Date.now();
-    const expiry = durationSeconds === 0 ? 0 : now + durationSeconds * 1000;
-    const banId = generateId();
-    bans[banId] = { discord, expiry, id: banId };
-    saveData();
-  }
-
-  // Check if user banned by discord username
-  function isBanned(discord) {
-    const now = Date.now();
-    for (const ban of Object.values(bans)) {
-      if (ban.discord.toLowerCase() === discord.toLowerCase()) {
-        if (ban.expiry === 0 || ban.expiry > now) return true;
-      }
-    }
-    return false;
-  }
-
-  // Remove expired bans
-  function cleanupBans() {
-    const now = Date.now();
-    for (const banId in bans) {
-      if (bans[banId].expiry !== 0 && bans[banId].expiry <= now) {
-        delete bans[banId];
-      }
-    }
-    saveData();
-  }
-
-  // Render functions
-  function renderPlayersList() {
-    const regionFilter = filterRegionPlayers.value;
-    const positionFilter = filterPositions.value;
-
-    playersList.innerHTML = '';
-    players
-      .filter(p => {
-        if (regionFilter !== 'all' && p.region !== regionFilter) return false;
-        if (positionFilter !== 'all' && !p.positions.includes(positionFilter)) return false;
-        if (isBanned(p.discord)) return false; // hide banned players from public list
-        return true;
-      })
-      .forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'entry';
+function renderGames() {
+    checkBalanceReset();
+    let container = document.getElementById("games");
+    container.innerHTML = "";
+    games.forEach(game => {
+        let hasBet = bets.find(b => b.gameId === game.id);
+        let status = game.bettingOpen ? "Open" : "Closed";
+        let div = document.createElement("div");
+        div.className = "game";
         div.innerHTML = `
-          <strong>${escapeHTML(p.discord)}</strong><br/>
-          Rating: ${escapeHTML(p.rating)}<br/>
-          Region: ${escapeHTML(p.region)}<br/>
-          Experience: ${escapeHTML(p.experience)}<br/>
-          Positions: ${p.positions.map(pos => escapeHTML(pos)).join(', ')}<br/>
-          Extra: ${escapeHTML(p.extra || '')}<br/>
-          ${p.picture ? `<img src="${escapeHTML(p.picture)}" alt="Picture" style="max-width:100px; margin-top:5px; border-radius:5px;">` : ''}
+            <strong>${game.team1}</strong> vs <strong>${game.team2}</strong>
+            <br>Score: ${game.score1} - ${game.score2} 
+            <br>Status: ${status}, Progress: ${game.progress}
+            <br>
+            <input type="number" id="betAmount${game.id}" placeholder="Points" ${hasBet || !game.bettingOpen || game.progress!=="Open" ? "disabled" : ""}>
+            <select id="betTeam${game.id}" ${hasBet || !game.bettingOpen || game.progress!=="Open" ? "disabled" : ""}>
+                <option value="${game.team1}">${game.team1}</option>
+                <option value="${game.team2}">${game.team2}</option>
+            </select>
+            <button onclick="placeBet(${game.id})" ${hasBet || !game.bettingOpen || game.progress!=="Open" ? "disabled" : ""}>Bet</button>
         `;
-        playersList.appendChild(div);
-      });
-  }
+        container.appendChild(div);
+    });
+}
 
-  function renderTeamsList() {
-    const regionFilter = filterRegionTeams.value;
+function renderBetLog() {
+    let logContainer = document.getElementById("betLog");
+    logContainer.innerHTML = betLog.slice(-10).map(entry => `<p>${entry}</p>`).join("");
+}
 
-    teamsList.innerHTML = '';
-    teams
-      .filter(t => {
-        if (regionFilter !== 'all' && t.region !== regionFilter) return false;
-        if (isBanned(t.managerDiscord)) return false; // hide banned team managers
-        return true;
-      })
-      .forEach(t => {
-        const div = document.createElement('div');
-        div.className = 'entry';
-        div.innerHTML = `
-          <strong>${escapeHTML(t.teamName)}</strong><br/>
-          Members: ${escapeHTML(t.members)}<br/>
-          Region: ${escapeHTML(t.region)}<br/>
-          Leagues: ${escapeHTML(t.leagues)}<br/>
-          Manager Discord: ${escapeHTML(t.managerDiscord)}<br/>
-          Team Link: ${escapeHTML(t.teamLink || '')}<br/>
-          Extra: ${escapeHTML(t.extra || '')}<br/>
-          ${t.teamIcon ? `<img src="${escapeHTML(t.teamIcon)}" alt="Team Icon" style="max-width:100px; margin-top:5px; border-radius:5px;">` : ''}
+function placeBet(gameId) {
+    let game = games.find(g => g.id === gameId);
+    let amount = parseInt(document.getElementById(`betAmount${game.id}`).value);
+    let team = document.getElementById(`betTeam${game.id}`).value;
+
+    if (!amount || amount <= 0) return alert("Enter a valid bet amount");
+    if (amount > balance) return alert("You do not have enough points");
+    if (bets.find(b => b.gameId === game.id)) return alert("You already bet on this game");
+    if (!game.bettingOpen || game.progress!=="Open") return alert("Betting is closed for this game");
+
+    balance -= amount;
+    updateBalance();
+
+    bets.push({ gameId: game.id, team, amount });
+    betLog.push(`A user has placed a bet on ${team} with ${amount} point(s)`);
+    saveData();
+    renderGames();
+    renderBetLog();
+
+    adminClickCount++;
+    if (adminClickCount === 5) {
+        let pass = prompt("Enter admin password:");
+        if (pass === "vrfsbetvrfs717") {
+            isAdmin = true;
+            localStorage.setItem("isAdmin", "true");
+            showAdmin();
+        } else {
+            alert("Wrong password");
+        }
+    }
+    checkBalanceReset();
+}
+
+function showAdmin() {
+    document.getElementById("adminPanel").style.display = "block";
+    renderScoreUpdate();
+    renderProgressUpdate();
+    renderStartGameControls();
+    renderEndBetControls();
+    renderDeleteControls();
+}
+
+function logoutAdmin() {
+    isAdmin = false;
+    localStorage.removeItem("isAdmin");
+    document.getElementById("adminPanel").style.display = "none";
+}
+
+function renderScoreUpdate() {
+    let container = document.getElementById("scoreUpdate");
+    container.innerHTML = "";
+    games.forEach((game) => {
+        container.innerHTML += `
+            <div>
+                ${game.team1} <input type="number" id="score1_${game.id}" value="${game.score1}">
+                ${game.team2} <input type="number" id="score2_${game.id}" value="${game.score2}">
+                <button onclick="updateScore(${game.id})">Update</button>
+            </div>
         `;
-        teamsList.appendChild(div);
-      });
-  }
+    });
+}
 
-  // Admin render
-  function renderAdmin() {
-    // Players
-    adminPlayersList.innerHTML = '';
-    players.forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'entry';
-      div.innerHTML = `
-        <strong>${escapeHTML(p.discord)}</strong> (ID: ${p.id})<br/>
-        Rating: ${escapeHTML(p.rating)}<br/>
-        Region: ${escapeHTML(p.region)}<br/>
-        Experience: ${escapeHTML(p.experience)}<br/>
-        Positions: ${p.positions.map(pos => escapeHTML(pos)).join(', ')}<br/>
-        Extra: ${escapeHTML(p.extra || '')}<br/>
-        ${p.picture ? `<img src="${escapeHTML(p.picture)}" alt="Picture" style="max-width:100px; margin-top:5px; border-radius:5px;">` : ''}
-        <div class="actions">
-          <button data-id="${p.id}" class="adminDeletePlayerBtn">Delete</button>
-          <button data-discord="${p.discord}" class="adminBanPlayerBtn">Ban</button>
+function updateScore(gameId) {
+    let game = games.find(g => g.id === gameId);
+    game.score1 = parseInt(document.getElementById(`score1_${gameId}`).value);
+    game.score2 = parseInt(document.getElementById(`score2_${gameId}`).value);
+    saveData();
+    renderGames();
+}
+
+function renderProgressUpdate() {
+    let container = document.getElementById("progressUpdate");
+    container.innerHTML = "";
+    games.forEach(game => {
+        container.innerHTML += `
+        <div>
+            ${game.team1} vs ${game.team2}
+            <select id="progress_${game.id}">
+                <option value="Open" ${game.progress==="Open"?'selected':''}>Open</option>
+                <option value="1st Half" ${game.progress==="1st Half"?'selected':''}>1st Half</option>
+                <option value="Half Time" ${game.progress==="Half Time"?'selected':''}>Half Time</option>
+                <option value="2nd Half" ${game.progress==="2nd Half"?'selected':''}>2nd Half</option>
+                <option value="Extra Time" ${game.progress==="Extra Time"?'selected':''}>Extra Time</option>
+                <option value="Pens" ${game.progress==="Pens"?'selected':''}>Pens</option>
+                <option value="Closed" ${game.progress==="Closed"?'selected':''}>Closed</option>
+            </select>
+            <button onclick="updateProgress(${game.id})">Update Progress</button>
         </div>
-      `;
-      adminPlayersList.appendChild(div);
+        `;
+    });
+}
+
+function updateProgress(gameId) {
+    let game = games.find(g => g.id === gameId);
+    game.progress = document.getElementById(`progress_${game.id}`).value;
+    if (game.progress==="Closed") game.bettingOpen = false;
+    saveData();
+    renderGames();
+    renderProgressUpdate();
+    renderStartGameControls();
+    renderEndBetControls();
+}
+
+function createGame() {
+    let team1 = document.getElementById("team1").value.trim();
+    let team2 = document.getElementById("team2").value.trim();
+    if (!team1 || !team2) return alert("Enter team names");
+    games.push({ id: Date.now(), team1, team2, score1:0, score2:0, bettingOpen:true, progress:"Open" });
+    document.getElementById("team1").value = "";
+    document.getElementById("team2").value = "";
+    saveData();
+    renderGames();
+    renderScoreUpdate();
+    renderProgressUpdate();
+    renderStartGameControls();
+    renderEndBetControls();
+    renderDeleteControls();
+}
+
+function renderStartGameControls() {
+    let container = document.getElementById("startGameControls");
+    container.innerHTML = "";
+    games.forEach(game => {
+        if (game.bettingOpen && game.progress==="Open") {
+            container.innerHTML += `<button onclick="startGame(${game.id})">Start Game: ${game.team1} vs ${game.team2}</button><br>`;
+        }
+    });
+}
+
+function startGame(gameId) {
+    let game = games.find(g => g.id===gameId);
+    game.bettingOpen = false;
+    game.progress = "1st Half";
+    saveData();
+    renderGames();
+    renderProgressUpdate();
+    renderStartGameControls();
+    renderEndBetControls();
+}
+
+function renderEndBetControls() {
+    let container = document.getElementById("endBetControls");
+    container.innerHTML = "";
+    games.forEach(game => {
+        if (!game.bettingOpen) {
+            container.innerHTML += `<button onclick="endBet(${game.id})">End Betting: ${game.team1} vs ${game.team2}</button><br>`;
+        }
+    });
+}
+
+function endBet(gameId) {
+    let game = games.find(g => g.id===gameId);
+    if (!game) return;
+    if (game.bettingOpen) return alert("Start the game first!");
+
+    bets.forEach(bet=>{
+        if (bet.gameId===gameId){
+            if (game.score1>game.score2 && bet.team===game.team1) balance+=bet.amount*2;
+            else if (game.score2>game.score1 && bet.team===game.team2) balance+=bet.amount*2;
+            else if (game.score1===game.score2) balance+=bet.amount;
+        }
     });
 
-    // Teams
-    adminTeamsList.innerHTML = '';
-    teams.forEach(t => {
-      const div = document.createElement('div');
-      div.className = 'entry';
-      div.innerHTML = `
-        <strong>${escapeHTML(t.teamName)}</strong> (ID: ${t.id})<br/>
-        Members: ${escapeHTML(t.members)}<br/>
-        Region: ${escapeHTML(t.region)}<br/>
-        Leagues: ${escapeHTML(t.leagues)}<br/>
-        Manager Discord: ${escapeHTML(t.managerDiscord)}<br/>
-        Team Link: ${escapeHTML(t.teamLink || '')}<br/>
-        Extra: ${escapeHTML(t.extra || '')}<br/>
-        ${t.teamIcon ? `<img src="${escapeHTML(t.teamIcon)}" alt="Team Icon" style="max-width:100px; margin-top:5px; border-radius:5px;">` : ''}
-        <div class="actions">
-          <button data-id="${t.id}" class="adminDeleteTeamBtn">Delete</button>
-          <button data-discord="${t.managerDiscord}" class="adminBanTeamManagerBtn">Ban Manager</button>
-        </div>
-      `;
-      adminTeamsList.appendChild(div);
+    bets = bets.filter(b=>b.gameId!==gameId);
+    saveData();
+    renderGames();
+    renderBetLog();
+    updateBalance();
+    renderEndBetControls();
+    alert(`Betting ended for ${game.team1} vs ${game.team2}`);
+}
+
+function renderDeleteControls() {
+    let container = document.getElementById("deleteGameControls");
+    container.innerHTML = "";
+    games.forEach(game=>{
+        container.innerHTML+=`<button onclick="deleteGame(${game.id})">Delete: ${game.team1} vs ${game.team2}</button><br>`;
     });
+}
 
-    // Bans
-    adminBansList.innerHTML = '';
-    const now = Date.now();
-    Object.values(bans).forEach(ban => {
-      const expiryDate = ban.expiry === 0 ? 'Forever' : new Date(ban.expiry).toLocaleString();
-      const div = document.createElement('div');
-      div.className = 'entry';
-      div.innerHTML = `
-        Discord: <strong>${escapeHTML(ban.discord)}</strong><br/>
-        Ban Expires: ${expiryDate}<br/>
-        <button data-id="${ban.id}" class="adminUnbanBtn">Unban</button>
-      `;
-      adminBansList.appendChild(div);
-    });
-  }
+function deleteGame(gameId){
+    if (!confirm("Are you sure?")) return;
+    games=games.filter(g=>g.id!==gameId);
+    bets=bets.filter(b=>b.gameId!==gameId);
+    saveData();
+    renderGames();
+    renderScoreUpdate();
+    renderProgressUpdate();
+    renderStartGameControls();
+    renderEndBetControls();
+    renderDeleteControls();
+}
 
-  // Show section functions
-  function showPlayers() {
-    navPlayers.classList.add('active');
-    navTeams.classList.remove('active');
-    sectionPlayers.style.display = '';
-    sectionTeams.style.display = 'none';
-  }
-  function showTeams() {
-    navPlayers.classList.remove('active');
-    navTeams.classList.add('active');
-    sectionPlayers.style.display = 'none';
-    sectionTeams.style.display = '';
-  }
+function givePoints(){
+    let amount=parseInt(document.getElementById("givePointsAmount").value);
+    if(amount>0){balance+=amount; saveData(); updateBalance();}
+}
 
-  // Cooldown check for submissions
-  function canSubmit() {
-    const now = Date.now();
-    return (now - lastSubmitTimestamp) > COOLDOWN_SECONDS * 1000;
-  }
+function updateBalance(){document.getElementById("balance").innerText=balance;}
 
-  // Validate Rating/Members input (allow number, optional decimal, optional K)
-  function validRatingMembers(value) {
-    return /^\d+(\.\d+)?K?$/i.test(value.trim());
-  }
-
-  // Validate Discord username (letters, numbers, _, . ; 3-32 chars)
-  function validDiscord(value) {
-    return /^[a-zA-Z0-9_.]{3,32}$/.test(value.trim());
-  }
-
-  // Validate Positions (array must not be empty and contain valid positions)
-  const validPositionsSet = new Set(['GK','LB','CB','RB','CDM','CM','CAM','LW','ST','RW']);
-  function validPositions(positions) {
-    if (!positions.length) return false;
-    return positions.every(p => validPositionsSet.has(p));
-  }
-
-  // Validate bad words in all text fields (case insensitive)
-  function validateNoBadWords(obj) {
-    return !Object.values(obj).some(value => {
-      if (!value) return false;
-      return containsBadWord(value.toString());
-    });
-  }
-
-  // Handle image preview
-  function handleImagePreview(input, preview, nameDisplay, deleteBtn) {
-    return function(e) {
-      const file = input.files[0];
-      if (!file) return;
-      
-      // Check if file is an image
-      if (!file.type.match('image.*')) {
-        alert('Please select an image file (jpg, png, gif)');
-        input.value = '';
-        return;
-      }
-      
-      // Check file size (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        alert('Image file is too large. Maximum size is 2MB.');
-        input.value = '';
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-        nameDisplay.textContent = file.name;
-        deleteBtn.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    };
-  }
-
-  // Reset image fields
-  function resetImageFields() {
-    playerPictureInput.value = '';
-    playerPicturePreview.src = '';
-    playerPicturePreview.style.display = 'none';
-    playerPictureName.textContent = 'No file selected';
-    playerPictureDelete.style.display = 'none';
-    currentPlayerImage = null;
-    
-    teamIconInput.value = '';
-    teamIconPreview.src = '';
-    teamIconPreview.style.display = 'none';
-    teamIconName.textContent = 'No file selected';
-    teamIconDelete.style.display = 'none';
-    currentTeamImage = null;
-  }
-
-  // Add Player
-  playerForm.addEventListener('submit', e => {
-    e.preventDefault();
-    playerError.textContent = '';
-
-    if (!canSubmit()) {
-      playerError.textContent = `Please wait ${COOLDOWN_SECONDS} seconds between submissions.`;
-      return;
-    }
-
-    const discord = playerForm.playerDiscord.value.trim();
-    const rating = playerForm.playerRating.value.trim();
-    const region = playerForm.playerRegion.value;
-    const experience = playerForm.playerExperience.value.trim();
-    const extra = playerForm.playerExtra.value.trim();
-    const positions = Array.from(playerForm.playerPositions.selectedOptions).map(o => o.value);
-    
-    // Get image data if uploaded
-    let picture = null;
-    if (playerPictureInput.files.length > 0) {
-      const file = playerPictureInput.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        picture = e.target.result;
-        completePlayerSubmission(picture);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      completePlayerSubmission(picture);
-    }
-    
-    function completePlayerSubmission(picture) {
-      if (!validDiscord(discord)) {
-        playerError.textContent = 'Invalid Discord username format.';
-        return;
-      }
-      if (!validRatingMembers(rating)) {
-        playerError.textContent = 'Rating must be a number, decimal, or with K suffix (e.g. 2.3K or 100).';
-        return;
-      }
-      if (!region) {
-        playerError.textContent = 'Please select a region.';
-        return;
-      }
-      if (!experience) {
-        playerError.textContent = 'Experience cannot be empty.';
-        return;
-      }
-      if (!validPositions(positions)) {
-        playerError.textContent = 'Please select at least one valid position.';
-        return;
-      }
-
-      // Check ban
-      if (isBanned(discord)) {
-        playerError.textContent = 'You are banned from submitting entries.';
-        return;
-      }
-
-      // Check bad words in input fields
-      if (!validateNoBadWords({discord, rating, region, experience, extra})) {
-        playerError.textContent = 'Inappropriate language detected. You have been banned for 1 day.';
-        banUser(discord, 86400); // ban 1 day
-        saveData();
-        return;
-      }
-
-      // Create new player entry with unique ID
-      const newPlayer = {
-        id: generateId(),
-        discord,
-        rating,
-        region,
-        experience,
-        extra,
-        picture,
-        positions,
-        createdAt: Date.now()
-      };
-
-      players.push(newPlayer);
-      saveData();
-      renderPlayersList();
-      playerForm.reset();
-      resetImageFields();
-      lastSubmitTimestamp = Date.now();
-      alert('Player submitted successfully!');
-    }
-  });
-
-  // Add Team
-  teamForm.addEventListener('submit', e => {
-    e.preventDefault();
-    teamError.textContent = '';
-
-    if (!canSubmit()) {
-      teamError.textContent = `Please wait ${COOLDOWN_SECONDS} seconds between submissions.`;
-      return;
-    }
-
-    const teamName = teamForm.teamName.value.trim();
-    const members = teamForm.teamMembers.value.trim();
-    const region = teamForm.teamRegion.value;
-    const leagues = teamForm.teamLeagues.value.trim();
-    const managerDiscord = teamForm.teamManagerDiscord.value.trim();
-    const teamLink = teamForm.teamLink.value.trim();
-    const extra = teamForm.teamExtra.value.trim();
-    
-    // Get image data if uploaded
-    let teamIcon = null;
-    if (teamIconInput.files.length > 0) {
-      const file = teamIconInput.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        teamIcon = e.target.result;
-        completeTeamSubmission(teamIcon);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      completeTeamSubmission(teamIcon);
-    }
-    
-    function completeTeamSubmission(teamIcon) {
-      if (!teamName) {
-        teamError.textContent = 'Team Name cannot be empty.';
-        return;
-      }
-      if (!validRatingMembers(members)) {
-        teamError.textContent = 'Members must be a number, decimal, or with K suffix (e.g. 2.3K or 10).';
-        return;
-      }
-      if (!region) {
-        teamError.textContent = 'Please select a region.';
-        return;
-      }
-      if (!leagues) {
-        teamError.textContent = 'Leagues cannot be empty.';
-        return;
-      }
-      if (!validDiscord(managerDiscord)) {
-        teamError.textContent = 'Invalid Manager Discord username format.';
-        return;
-      }
-
-      // Check ban
-      if (isBanned(managerDiscord)) {
-        teamError.textContent = 'You are banned from submitting entries.';
-        return;
-      }
-
-      // Check bad words
-      if (!validateNoBadWords({teamName, members, region, leagues, managerDiscord, teamLink, extra})) {
-        teamError.textContent = 'Inappropriate language detected. You have been banned for 1 day.';
-        banUser(managerDiscord, 86400);
-        saveData();
-        return;
-      }
-
-      const newTeam = {
-        id: generateId(),
-        teamName,
-        members,
-        region,
-        leagues,
-        managerDiscord,
-        teamLink,
-        extra,
-        teamIcon,
-        createdAt: Date.now()
-      };
-
-      teams.push(newTeam);
-      saveData();
-      renderTeamsList();
-      teamForm.reset();
-      resetImageFields();
-      lastSubmitTimestamp = Date.now();
-      alert('Team submitted successfully!');
-    }
-  });
-
-  // Navigation buttons
-  navPlayers.addEventListener('click', () => {
-    showPlayers();
-  });
-  navTeams.addEventListener('click', () => {
-    showTeams();
-  });
-
-  // Filtering event listeners
-  filterRegionPlayers.addEventListener('change', renderPlayersList);
-  filterPositions.addEventListener('change', renderPlayersList);
-  filterRegionTeams.addEventListener('change', renderTeamsList);
-
-  // Admin login flow - triggered by 5 clicks on Players nav button within 3 seconds
-  navPlayers.addEventListener('click', () => {
-    playerClickCount++;
-    if (playerClickTimeout) clearTimeout(playerClickTimeout);
-    playerClickTimeout = setTimeout(() => {
-      playerClickCount = 0;
-    }, 3000);
-    if (playerClickCount >= 5 && !adminLoggedIn) {
-      playerClickCount = 0;
-      const pw = prompt('Enter admin password:');
-      if (pw === ADMIN_PASSWORD) {
-        adminLoggedIn = true;
-        adminSection.style.display = 'block';
-        alert('Admin access granted.');
-        renderAdmin();
-      } else {
-        alert('Incorrect password.');
-      }
-    }
-  });
-
-  // Admin logout
-  adminLogoutBtn.addEventListener('click', () => {
-    adminLoggedIn = false;
-    adminSection.style.display = 'none';
-  });
-
-  // Admin post announcement
-  adminPostAnnouncementBtn.addEventListener('click', () => {
-    if (!adminLoggedIn) return alert('You are not admin.');
-    const text = adminAnnouncementInput.value.trim();
-    localStorage.setItem(STORAGE_ANNOUNCEMENT, text);
-    globalAnnouncement.textContent = text || 'No announcements yet.';
-    alert('Announcement posted.');
-    adminAnnouncementInput.value = '';
-  });
-
-  // Load announcement on start
-  function loadAnnouncement() {
-    const ann = localStorage.getItem(STORAGE_ANNOUNCEMENT) || '';
-    globalAnnouncement.textContent = ann || 'No announcements yet.';
-  }
-
-  // Admin delegation: event delegation for delete and ban buttons
-  adminPlayersList.addEventListener('click', e => {
-    if (!adminLoggedIn) return;
-    if (e.target.classList.contains('adminDeletePlayerBtn')) {
-      const id = e.target.getAttribute('data-id');
-      players = players.filter(p => p.id !== id);
-      saveData();
-      renderPlayersList();
-      renderAdmin();
-    } else if (e.target.classList.contains('adminBanPlayerBtn')) {
-      const discord = e.target.getAttribute('data-discord');
-      if (confirm(`Ban player with Discord username: ${discord} for 1 day?`)) {
-        banUser(discord, 86400);
-        saveData();
-        renderPlayersList();
-        renderTeamsList();
-        renderAdmin();
-      }
-    }
-  });
-
-  adminTeamsList.addEventListener('click', e => {
-    if (!adminLoggedIn) return;
-    if (e.target.classList.contains('adminDeleteTeamBtn')) {
-      const id = e.target.getAttribute('data-id');
-      teams = teams.filter(t => t.id !== id);
-      saveData();
-      renderTeamsList();
-      renderAdmin();
-    } else if (e.target.classList.contains('adminBanTeamManagerBtn')) {
-      const discord = e.target.getAttribute('data-discord');
-      if (confirm(`Ban team manager with Discord username: ${discord} for 1 day?`)) {
-        banUser(discord, 86400);
-        saveData();
-        renderPlayersList();
-        renderTeamsList();
-        renderAdmin();
-      }
-    }
-  });
-
-  adminBansList.addEventListener('click', e => {
-    if (!adminLoggedIn) return;
-    if (e.target.classList.contains('adminUnbanBtn')) {
-      const id = e.target.getAttribute('data-id');
-      delete bans[id];
-      saveData();
-      renderAdmin();
-    }
-  });
-
-  // Set up file upload buttons
-  playerPictureBtn.addEventListener('click', () => playerPictureInput.click());
-  teamIconBtn.addEventListener('click', () => teamIconInput.click());
-  
-  // Set up image previews
-  playerPictureInput.addEventListener('change', handleImagePreview(
-    playerPictureInput, 
-    playerPicturePreview, 
-    playerPictureName, 
-    playerPictureDelete
-  ));
-  
-  teamIconInput.addEventListener('change', handleImagePreview(
-    teamIconInput, 
-    teamIconPreview, 
-    teamIconName, 
-    teamIconDelete
-  ));
-  
-  // Set up image deletion
-  playerPictureDelete.addEventListener('click', () => {
-    playerPictureInput.value = '';
-    playerPicturePreview.src = '';
-    playerPicturePreview.style.display = 'none';
-    playerPictureName.textContent = 'No file selected';
-    playerPictureDelete.style.display = 'none';
-  });
-  
-  teamIconDelete.addEventListener('click', () => {
-    teamIconInput.value = '';
-    teamIconPreview.src = '';
-    teamIconPreview.style.display = 'none';
-    teamIconName.textContent = 'No file selected';
-    teamIconDelete.style.display = 'none';
-  });
-
-  // Initial load
-  loadData();
-  cleanupBans();
-  loadAnnouncement();
-  renderPlayersList();
-  renderTeamsList();
-
-  showPlayers();
-})();
+updateBalance();
+renderGames();
+renderBetLog();
+if(isAdmin) showAdmin();
 </script>
 
 </body>
