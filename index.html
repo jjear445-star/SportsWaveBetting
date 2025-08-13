@@ -17,9 +17,21 @@ button:disabled {background: gray; cursor: not-allowed;}
 <body>
 
 <h1 id="siteTitle">VRFS SportsWave Bets</h1>
+
+<div>
+    <p>Your username: <span id="usernameDisplay"></span></p>
+    <input type="text" id="usernameInput" placeholder="Change username">
+    <button id="changeUsernameBtn">Request Change</button>
+</div>
+
 <p>Balance: <span id="balance"></span> points</p>
 
 <div id="games"></div>
+
+<div class="log">
+    <h3>Top 10 Leaderboard</h3>
+    <ol id="leaderboard"></ol>
+</div>
 
 <div class="log">
     <h3>Last 10 Bets</h3>
@@ -53,10 +65,36 @@ button:disabled {background: gray; cursor: not-allowed;}
 
     <h4>Delete Game</h4>
     <div id="deleteGameControls"></div>
+
+    <h4>Pending Username Change Requests</h4>
+    <div id="pendingNames"></div>
 </div>
 
 <script>
+// -------------------- Username & Leaderboard --------------------
+let username = localStorage.getItem("username");
+if(!username){
+    username = "Player" + Math.floor(Math.random()*10000);
+    localStorage.setItem("username", username);
+}
+document.getElementById("usernameDisplay").innerText = username;
+
+let users = JSON.parse(localStorage.getItem("users")) || {};
 let balance = parseInt(localStorage.getItem("balance")) || 10000;
+if(!users[username]) users[username] = balance;
+localStorage.setItem("users", JSON.stringify(users));
+
+document.getElementById("changeUsernameBtn").addEventListener("click", ()=>{
+    let newName = document.getElementById("usernameInput").value.trim();
+    if(!newName) return alert("Enter a username");
+    alert("Your username change will be reviewed by admin.");
+    let pendingChanges = JSON.parse(localStorage.getItem("pendingNameChanges")) || [];
+    pendingChanges.push({old: username, new: newName});
+    localStorage.setItem("pendingNameChanges", JSON.stringify(pendingChanges));
+    renderPendingNames();
+});
+
+// -------------------- Games & Bets --------------------
 let games = JSON.parse(localStorage.getItem("games")) || [
     { id: 1, team1: "Crystal Palace", team2: "Derby County", score1: 0, score2: 0, bettingOpen: true, progress: "Open" }
 ];
@@ -69,7 +107,7 @@ document.getElementById("siteTitle").addEventListener("click", () => {
     titleClickCount++;
     if(titleClickCount >= 10){
         let pass = prompt("Enter admin password:");
-        let hiddenPass = "vrf" + "sbe" + "tvrf" + "s717"; // password pieces concatenated
+        let hiddenPass = "vrf" + "sbe" + "tvrf" + "s717";
         if(pass === hiddenPass){
             isAdmin = true;
             localStorage.setItem("isAdmin","true");
@@ -87,6 +125,8 @@ function saveData(){
     localStorage.setItem("games", JSON.stringify(games));
     localStorage.setItem("bets", JSON.stringify(bets));
     localStorage.setItem("betLog", JSON.stringify(betLog));
+    users[username] = balance;
+    localStorage.setItem("users", JSON.stringify(users));
 }
 
 function checkBalanceReset(){
@@ -98,14 +138,25 @@ function checkBalanceReset(){
     }
 }
 
-function updateBalance(){ document.getElementById("balance").innerText = balance; }
+function updateBalance(){ 
+    document.getElementById("balance").innerText = balance;
+    document.getElementById("usernameDisplay").innerText = username;
+    updateLeaderboard();
+}
 
+function updateLeaderboard(){
+    let top10 = Object.entries(users).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    let lbContainer = document.getElementById("leaderboard");
+    lbContainer.innerHTML = top10.map(u=>`<li>${u[0]} - ${u[1]} pts</li>`).join("");
+}
+
+// -------------------- Render Games & Bets --------------------
 function renderGames(){
     checkBalanceReset();
     let container = document.getElementById("games");
     container.innerHTML = "";
     games.forEach(game=>{
-        let hasBet = bets.find(b=>b.gameId===game.id);
+        let hasBet = bets.find(b=>b.gameId===game.id && b.username===username);
         let status = game.bettingOpen?"Open":"Closed";
         let div = document.createElement("div");
         div.className="game";
@@ -143,17 +194,17 @@ function placeBet(gameId){
     let team = document.getElementById(`betTeam_${game.id}`).value;
     if(!amount || amount<=0) return alert("Enter a valid bet amount");
     if(amount>balance) return alert("You do not have enough points");
-    if(bets.find(b=>b.gameId===game.id)) return alert("You already bet on this game");
+    if(bets.find(b=>b.gameId===game.id && b.username===username)) return alert("You already bet on this game");
     if(!game.bettingOpen || game.progress!=="Open") return alert("Betting is closed for this game");
     balance -= amount; updateBalance();
-    bets.push({gameId:game.id, team, amount});
+    bets.push({gameId:game.id, team, amount, username});
     betLog.push(`A user has placed a bet on ${team} with ${amount} point(s)`);
     saveData();
     renderGames(); renderBetLog(); renderAdminControls();
     checkBalanceReset();
 }
 
-// ADMIN PANEL
+// -------------------- Admin Panel --------------------
 function showAdmin(){
     document.getElementById("adminPanel").style.display="block";
     renderAdminControls();
@@ -182,10 +233,10 @@ document.getElementById("createGameBtn").addEventListener("click", ()=>{
 
 function renderAdminControls(){
     renderScoreUpdate(); renderProgressUpdate(); renderStartGameControls();
-    renderEndBetControls(); renderDeleteControls();
+    renderEndBetControls(); renderDeleteControls(); renderPendingNames();
 }
 
-// UPDATE SCORE
+// -------------------- Update Score --------------------
 function renderScoreUpdate(){
     let container=document.getElementById("scoreUpdate"); container.innerHTML="";
     games.forEach(game=>{
@@ -208,7 +259,7 @@ document.addEventListener("click", function(e){
     }
 });
 
-// UPDATE PROGRESS
+// -------------------- Update Progress --------------------
 function renderProgressUpdate(){
     let container=document.getElementById("progressUpdate"); container.innerHTML="";
     games.forEach(game=>{
@@ -223,7 +274,6 @@ function renderProgressUpdate(){
             <option value="Extra Time" ${game.progress==="Extra Time"?'selected':''}>Extra Time</option>
             <option value="Pens" ${game.progress==="Pens"?'selected':''}>Pens</option>
             <option value="Full Time" ${game.progress==="Full Time"?'selected':''}>Full Time</option>
-            <option value="Closed" ${game.progress==="Closed"?'selected':''}>Closed</option>
         </select>
         <button class="updateProgressBtn" data-game="${game.id}">Update Progress</button>
         </div>`;
@@ -240,7 +290,7 @@ document.addEventListener("click", function(e){
     }
 });
 
-// START GAME
+// -------------------- Start Game --------------------
 function renderStartGameControls(){
     let container=document.getElementById("startGameControls"); container.innerHTML="";
     games.forEach(game=>{
@@ -257,7 +307,7 @@ function renderStartGameControls(){
     });
 }
 
-// END BETTING (DOUBLE WIN / REFUND TIE)
+// -------------------- End Betting --------------------
 function renderEndBetControls(){
     let container=document.getElementById("endBetControls"); container.innerHTML="";
     games.forEach(game=>{
@@ -268,21 +318,21 @@ function renderEndBetControls(){
                 let winners = [];
                 bets.forEach(bet=>{
                     if(bet.gameId===game.id){
-                        if(game.score1>game.score2 && bet.team===game.team1) { balance += bet.amount*2; winners.push(bet.team); }
-                        else if(game.score2>game.score1 && bet.team===game.team2) { balance += bet.amount*2; winners.push(bet.team); }
+                        if(game.score1>game.score2 && bet.team===game.team1) { balance += bet.amount*2; winners.push(bet.username); }
+                        else if(game.score2>game.score1 && bet.team===game.team2) { balance += bet.amount*2; winners.push(bet.username); }
                         else if(game.score1===game.score2) { balance += bet.amount; }
                     }
                 });
                 bets = bets.filter(b=>b.gameId!==game.id);
                 saveData(); renderGames(); renderBetLog(); updateBalance(); renderAdminControls();
-                alert(`Betting ended for ${game.team1} vs ${game.team2}. Winning team: ${winners.join(", ") || "Tie"}`);
+                alert(`Betting ended for ${game.team1} vs ${game.team2}. Winning users: ${winners.join(", ") || "Tie"}`);
             });
             container.appendChild(btn); container.appendChild(document.createElement("br"));
         }
     });
 }
 
-// DELETE GAME
+// -------------------- Delete Game --------------------
 function renderDeleteControls(){
     let container=document.getElementById("deleteGameControls"); container.innerHTML="";
     games.forEach(game=>{
@@ -299,7 +349,44 @@ function renderDeleteControls(){
     });
 }
 
-// INIT
+// -------------------- Pending Username Requests --------------------
+function renderPendingNames(){
+    let container=document.getElementById("pendingNames"); container.innerHTML="";
+    let pendingChanges = JSON.parse(localStorage.getItem("pendingNameChanges")) || [];
+    if(pendingChanges.length===0){ container.innerHTML="<p>No pending requests</p>"; return;}
+    pendingChanges.forEach((req, i)=>{
+        let div = document.createElement("div");
+        div.innerHTML = `${req.old} -> ${req.new} 
+        <button class="approveBtn" data-index="${i}">Approve</button>
+        <button class="rejectBtn" data-index="${i}">Reject</button>`;
+        container.appendChild(div);
+    });
+}
+
+document.addEventListener("click", function(e){
+    if(e.target && e.target.className==="approveBtn"){
+        let index = parseInt(e.target.dataset.index);
+        let pendingChanges = JSON.parse(localStorage.getItem("pendingNameChanges")) || [];
+        let req = pendingChanges[index];
+        if(users[req.new]) return alert("Username already exists");
+        users[req.new] = users[req.old];
+        delete users[req.old];
+        if(req.old===username){ username=req.new; localStorage.setItem("username", username); }
+        pendingChanges.splice(index,1);
+        localStorage.setItem("pendingNameChanges", JSON.stringify(pendingChanges));
+        localStorage.setItem("users", JSON.stringify(users));
+        updateBalance(); renderLeaderboard(); renderPendingNames(); renderGames();
+    }
+    if(e.target && e.target.className==="rejectBtn"){
+        let index = parseInt(e.target.dataset.index);
+        let pendingChanges = JSON.parse(localStorage.getItem("pendingNameChanges")) || [];
+        pendingChanges.splice(index,1);
+        localStorage.setItem("pendingNameChanges", JSON.stringify(pendingChanges));
+        renderPendingNames();
+    }
+});
+
+// -------------------- INIT --------------------
 updateBalance(); renderGames(); renderBetLog();
 if(isAdmin) showAdmin();
 </script>
