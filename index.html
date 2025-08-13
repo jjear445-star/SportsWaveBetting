@@ -16,7 +16,7 @@ button:disabled {background: gray; cursor: not-allowed;}
 </head>
 <body>
 
-<h1>VRFS Sportswave Bets</h1>
+<h1>VRFS Mini Bets</h1>
 <p>Balance: <span id="balance"></span> points</p>
 
 <div id="games"></div>
@@ -62,7 +62,7 @@ let games = JSON.parse(localStorage.getItem("games")) || [
 ];
 let bets = JSON.parse(localStorage.getItem("bets")) || [];
 let betLog = JSON.parse(localStorage.getItem("betLog")) || [];
-let adminClickCount = 0;
+let adminClickCount = 0; // tracks bet clicks for secret admin prompt
 let isAdmin = localStorage.getItem("isAdmin") === "true";
 
 function saveData() {
@@ -130,6 +130,7 @@ function placeBet(gameId) {
     renderGames();
     renderBetLog();
 
+    // Secret admin access logic
     adminClickCount++;
     if (adminClickCount === 5) {
         let pass = prompt("Enter admin password:");
@@ -141,6 +142,7 @@ function placeBet(gameId) {
             alert("Wrong password");
         }
     }
+
     checkBalanceReset();
 }
 
