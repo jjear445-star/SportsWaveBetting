@@ -136,69 +136,53 @@ document.addEventListener("click", function(e){
     }
 });
 
-// BET
 function placeBet(gameId){
     let game = games.find(g=>g.id===gameId);
     let amount = parseInt(document.getElementById(`betAmount_${game.id}`).value);
     let team = document.getElementById(`betTeam_${game.id}`).value;
-
     if(!amount || amount<=0) return alert("Enter a valid bet amount");
     if(amount>balance) return alert("You do not have enough points");
     if(bets.find(b=>b.gameId===game.id)) return alert("You already bet on this game");
     if(!game.bettingOpen || game.progress!=="Open") return alert("Betting is closed for this game");
-
-    balance -= amount;
-    updateBalance();
-
+    balance -= amount; updateBalance();
     bets.push({gameId:game.id, team, amount});
     betLog.push(`A user has placed a bet on ${team} with ${amount} point(s)`);
-
     saveData();
-    renderGames();
-    renderBetLog();
+    renderGames(); renderBetLog(); renderAdminControls();
     checkBalanceReset();
 }
 
 // ADMIN PANEL
 function showAdmin(){
     document.getElementById("adminPanel").style.display="block";
-    renderScoreUpdate();
-    renderProgressUpdate();
-    renderStartGameControls();
-    renderEndBetControls();
-    renderDeleteControls();
+    renderAdminControls();
 }
 
-// LOGOUT
 document.getElementById("logoutAdminBtn").addEventListener("click", ()=>{
-    isAdmin=false;
-    localStorage.removeItem("isAdmin");
+    isAdmin=false; localStorage.removeItem("isAdmin");
     document.getElementById("adminPanel").style.display="none";
 });
 
-// GIVE POINTS
 document.getElementById("givePointsBtn").addEventListener("click", ()=>{
     let amount=parseInt(document.getElementById("givePointsAmount").value);
     if(amount>0){balance+=amount; saveData(); updateBalance();}
 });
 
-// CREATE GAME
 document.getElementById("createGameBtn").addEventListener("click", ()=>{
     let t1 = document.getElementById("team1").value.trim();
     let t2 = document.getElementById("team2").value.trim();
     if(!t1 || !t2) return alert("Enter team names");
     let id = Date.now();
     games.push({id, team1:t1, team2:t2, score1:0, score2:0, bettingOpen:true, progress:"Open"});
-    document.getElementById("team1").value="";
-    document.getElementById("team2").value="";
+    document.getElementById("team1").value=""; document.getElementById("team2").value="";
     saveData();
-    renderGames();
-    renderScoreUpdate();
-    renderProgressUpdate();
-    renderStartGameControls();
-    renderEndBetControls();
-    renderDeleteControls();
+    renderGames(); renderAdminControls();
 });
+
+function renderAdminControls(){
+    renderScoreUpdate(); renderProgressUpdate(); renderStartGameControls();
+    renderEndBetControls(); renderDeleteControls();
+}
 
 // UPDATE SCORE
 function renderScoreUpdate(){
@@ -212,13 +196,14 @@ function renderScoreUpdate(){
         </div>`;
     });
 }
+
 document.addEventListener("click", function(e){
     if(e.target && e.target.className==="updateScoreBtn"){
         let id = parseInt(e.target.dataset.game);
         let game = games.find(g=>g.id===id);
         game.score1 = parseInt(document.querySelector(`.score1Input[data-game="${id}"]`).value);
         game.score2 = parseInt(document.querySelector(`.score2Input[data-game="${id}"]`).value);
-        saveData(); renderGames();
+        saveData(); renderGames(); renderAdminControls();
     }
 });
 
@@ -242,13 +227,14 @@ function renderProgressUpdate(){
         </div>`;
     });
 }
+
 document.addEventListener("click", function(e){
     if(e.target && e.target.className==="updateProgressBtn"){
         let id=parseInt(e.target.dataset.game);
         let game = games.find(g=>g.id===id);
         game.progress=document.querySelector(`.progressSelect[data-game="${id}"]`).value;
         if(game.progress!=="Open") game.bettingOpen=false;
-        saveData(); renderGames(); renderProgressUpdate();
+        saveData(); renderGames(); renderAdminControls();
     }
 });
 
@@ -262,7 +248,7 @@ function renderStartGameControls(){
             btn.addEventListener("click", ()=>{
                 game.bettingOpen=false;
                 if(game.progress==="Open") game.progress="1st Half";
-                saveData(); renderGames(); renderStartGameControls(); renderEndBetControls();
+                saveData(); renderGames(); renderAdminControls();
             });
             container.appendChild(btn); container.appendChild(document.createElement("br"));
         }
@@ -285,7 +271,7 @@ function renderEndBetControls(){
                     }
                 });
                 bets = bets.filter(b=>b.gameId!==game.id);
-                saveData(); renderGames(); renderBetLog(); updateBalance(); renderEndBetControls();
+                saveData(); renderGames(); renderBetLog(); updateBalance(); renderAdminControls();
                 alert(`Betting ended for ${game.team1} vs ${game.team2}`);
             });
             container.appendChild(btn); container.appendChild(document.createElement("br"));
@@ -304,18 +290,15 @@ function renderDeleteControls(){
             games = games.filter(g=>g.id!==game.id);
             bets = bets.filter(b=>b.gameId!==game.id);
             saveData();
-            renderGames(); renderScoreUpdate(); renderProgressUpdate(); renderStartGameControls(); renderEndBetControls(); renderDeleteControls();
+            renderGames(); renderAdminControls();
         });
         container.appendChild(btn); container.appendChild(document.createElement("br"));
     });
 }
 
 // INIT
-updateBalance();
-renderGames();
-renderBetLog();
+updateBalance(); renderGames(); renderBetLog();
 if(isAdmin) showAdmin();
-
 </script>
 </body>
 </html>
